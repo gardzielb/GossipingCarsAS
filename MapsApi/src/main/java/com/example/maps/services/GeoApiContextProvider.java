@@ -1,4 +1,4 @@
-package com.kgd.mapsapi.services;
+package com.example.maps.services;
 
 import com.google.maps.GeoApiContext;
 

@@ -1,4 +1,4 @@
-package com.kgd.mapsapi.serialization;
+package com.example.maps.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -10,9 +10,9 @@ import java.io.IOException;
 
 @JsonComponent
 public class ObjectIdSerializer extends JsonSerializer<ObjectId> {
-    @Override
-    public void serialize(ObjectId value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
-            throws IOException {
-        jsonGenerator.writeString(value.toHexString());
-    }
+	@Override
+	public void serialize( ObjectId value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider )
+			throws IOException {
+		jsonGenerator.writeString( value.toHexString() );
+	}
 }

@@ -1,4 +1,3 @@
 rootProject.name = 'GossipingCars'
 include 'AgentSystem'
 include 'MapsApi'
-

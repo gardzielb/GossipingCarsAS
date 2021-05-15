@@ -1,6 +1,6 @@
-package com.kgd.mapsapi.repositories;
+package com.example.maps.repositories;
 
-import com.kgd.mapsapi.models.Place;
+import com.example.maps.models.Place;
 import org.bson.types.ObjectId;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
@@ -11,5 +11,5 @@ import java.util.List;
 
 @Repository
 public interface PlaceRepository extends MongoRepository<Place, ObjectId> {
-    List<Place> findByLocationNear(Point location, Distance distance);
+    List<Place> findByLocationNear( Point location, Distance distance);
 }
