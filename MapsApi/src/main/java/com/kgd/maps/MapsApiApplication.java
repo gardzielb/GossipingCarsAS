@@ -1,4 +1,4 @@
-package com.example.maps;
+package com.kgd.maps;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MapsApiApplication {
 
-	public static void main( String[] args ) {
-		SpringApplication.run( MapsApiApplication.class, args );
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MapsApiApplication.class, args);
+    }
 
 }
