@@ -1,7 +1,7 @@
-package com.kgd.mapsapi.api;
+package com.kgd.maps.api;
 
-import com.kgd.mapsapi.models.Place;
-import com.kgd.mapsapi.repositories.PlaceRepository;
+import com.kgd.maps.models.Place;
+import com.kgd.maps.repositories.PlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;

@@ -1,4 +1,4 @@
-package com.kgd.mapsapi;
+package com.kgd.maps;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

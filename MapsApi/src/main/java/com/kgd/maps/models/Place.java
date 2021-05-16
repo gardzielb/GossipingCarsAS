@@ -1,4 +1,5 @@
-package com.kgd.mapsapi.models;
+package com.kgd.maps.models;
+
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.maps.model.PlaceType;

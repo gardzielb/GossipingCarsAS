@@ -1,4 +1,4 @@
-package com.kgd.mapsapi.serialization;
+package com.kgd.maps.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

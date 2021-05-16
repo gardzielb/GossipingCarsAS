@@ -2,11 +2,18 @@ plugins {
     id 'java'
 }
 
-group = 'com.kgd'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = "16"
-targetCompatibility = JavaVersion.VERSION_16
+group 'com.kgd'
+version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
 }

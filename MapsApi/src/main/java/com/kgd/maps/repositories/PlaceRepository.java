@@ -1,6 +1,6 @@
-package com.kgd.mapsapi.repositories;
+package com.kgd.maps.repositories;
 
-import com.kgd.mapsapi.models.Place;
+import com.kgd.maps.models.Place;
 import org.bson.types.ObjectId;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
