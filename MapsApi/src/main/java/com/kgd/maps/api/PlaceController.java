@@ -21,7 +21,7 @@ public class PlaceController {
     }
 
     @GetMapping("/all")
-    public List<Place> getPlaces() {
+    public List<Place> getAllPlaces() {
         return repository.findAll();
     }
 
