@@ -11,7 +11,8 @@ import org.springframework.data.geo.Point;
 import java.util.ArrayList;
 
 public class RouteParser {
-    public Route fromGoogleResponse(DirectionsRoute route) {
+
+    public Route fromGoogleResponse(DirectionsRoute route, ObjectId destinationId) {
         var segments = new ArrayList<RouteSegment>();
 
         for (var leg : route.legs) {
@@ -27,11 +28,6 @@ public class RouteParser {
             segments.add(segment);
         }
 
-        return new Route(
-                ObjectId.get(),
-                segments.get(0).origin(),
-                segments.get(segments.size() - 1).destination(),
-                segments
-        );
+        return new Route(ObjectId.get(), segments.get(0).origin(), destinationId, segments);
     }
 }
