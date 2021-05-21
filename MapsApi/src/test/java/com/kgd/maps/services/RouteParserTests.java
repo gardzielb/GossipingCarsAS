@@ -1,4 +1,4 @@
-package com.kgd.maps;
+package com.kgd.maps.services;
 
 import com.google.maps.model.*;
 import com.kgd.maps.services.RouteParser;
