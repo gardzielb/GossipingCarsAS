@@ -1,19 +1,19 @@
-package com.kgd.agents.navigator;
+package com.kgd.agents.navigator.behaviors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.RouteNavigatorAgent;
 import com.kgd.agents.models.GeoPoint;
+import com.kgd.agents.navigator.RouteNavigatorAgent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class HandleRouteRequestBehavior extends CyclicBehaviour {
+public class HandleNewWaypointRequestBehavior extends CyclicBehaviour {
 
     private final RouteNavigatorAgent agent;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public HandleRouteRequestBehavior(RouteNavigatorAgent agent) {
+    public HandleNewWaypointRequestBehavior(RouteNavigatorAgent agent) {
         this.agent = agent;
     }
 
@@ -23,12 +23,24 @@ public class HandleRouteRequestBehavior extends CyclicBehaviour {
         var message = agent.receive(template);
 
         if (message != null) {
+            var agreeResponse = message.createReply();
+            agreeResponse.setPerformative(ACLMessage.AGREE);
+            agent.send(agreeResponse);
+
+            var resultResponse = message.createReply();
             try {
                 var waypoints = objectMapper.readValue(message.getContent(), GeoPoint[].class);
                 agent.addWaypoints(waypoints);
+                resultResponse.setPerformative(ACLMessage.INFORM);
+                resultResponse.setContent("DONE");
             }
             catch (JsonProcessingException e) {
                 e.printStackTrace();
+                resultResponse.setPerformative(ACLMessage.FAILURE);
+                resultResponse.setContent(e.getMessage());
+            }
+            finally {
+                agent.send(resultResponse);
             }
         }
     }

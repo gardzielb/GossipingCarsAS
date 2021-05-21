@@ -1,8 +1,9 @@
-package com.kgd.agents;
+package com.kgd.agents.navigator;
 
 import com.kgd.agents.models.GeoPoint;
 import com.kgd.agents.models.Route;
-import com.kgd.agents.navigator.HandleRouteRequestBehavior;
+import com.kgd.agents.navigator.behaviors.HandleNewWaypointRequestBehavior;
+import com.kgd.agents.navigator.behaviors.HandleRouteQueryBehavior;
 import com.kgd.agents.services.HttpRouteService;
 import com.kgd.agents.services.RouteService;
 import jade.core.Agent;
@@ -34,7 +35,8 @@ public class RouteNavigatorAgent extends Agent {
             throw new IllegalStateException("Failed to find route");
         }
 
-        addBehaviour(new HandleRouteRequestBehavior(this));
+        addBehaviour(new HandleNewWaypointRequestBehavior(this));
+        addBehaviour(new HandleRouteQueryBehavior(this));
     }
 
     public void addWaypoints(GeoPoint[] waypoints) {
@@ -45,5 +47,9 @@ public class RouteNavigatorAgent extends Agent {
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public Route getCurrentRoute() {
+        return currentRoute;
     }
 }
