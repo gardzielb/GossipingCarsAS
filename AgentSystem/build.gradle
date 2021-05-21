@@ -17,6 +17,12 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
     implementation group: 'com.tilab.jade', name: 'jade', version: '4.5.0'
+    implementation group: 'com.google.maps', name: 'google-maps-services', version: '0.18.0'
+
+    // JSON
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.3'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.3'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
 }
 
 test {
