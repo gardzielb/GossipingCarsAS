@@ -8,13 +8,13 @@ import com.kgd.agents.models.DecodedRouteSegment;
 import com.kgd.agents.models.GeoPoint;
 import com.kgd.agents.models.Route;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
-import jade.core.AID;
-import jade.core.Agent;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.basic.Action;
+import jade.core.*;
+import jade.domain.mobility.MobilityOntology;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.wrapper.AgentContainer;
-import jade.wrapper.AgentController;
-import jade.wrapper.StaleProxyException;
+import jade.wrapper.*;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -22,8 +22,8 @@ import java.util.Arrays;
 public class DriverAgent extends Agent {
 
     public double time;
-    public int routeFragment = 0;
-    public int fragmentSection = 0;
+    public int routeSegment = 0;
+    public int segmentFragment = 0;
     public double percent = 0.0;
 
     // velocity [km/h]
@@ -33,9 +33,25 @@ public class DriverAgent extends Agent {
 
     @Override
     protected void setup() {
-        super.setup();
+        // create a sub-container
+        jade.core.Runtime runtime = jade.core.Runtime.instance();
+        Profile profile = new ProfileImpl();
+        profile.setParameter(Profile.CONTAINER_NAME, getLocalName()+"_container");
+        profile.setParameter(Profile.MAIN_HOST, "localhost");
+        ContainerController container = runtime.createAgentContainer(profile);
 
-        time = Instant.now().toEpochMilli();
+        ContainerID destination = new ContainerID();
+
+        try {
+            destination.setName(container.getContainerName());
+            destination.setAddress(container.getPlatformName());
+        } catch (ControllerException e) {
+            e.printStackTrace();
+        }
+
+        doMove(destination);
+
+        super.setup();
 
         Object[] args = getArguments();
         if (args == null || args.length < 3)
@@ -45,21 +61,29 @@ public class DriverAgent extends Agent {
         velocity = Double.parseDouble((String) args[3]);
 
         // creating a route navigator
-        AgentContainer c = getContainerController();
         try {
-            AgentController a = c.createNewAgent(getLocalName() + "_route_navigator", RouteNavigatorAgent.class.getName(), routeManagerArgs);
+            AgentController a = container.createNewAgent(getLocalName() + "_route_navigator", RouteNavigatorAgent.class.getName(), routeManagerArgs);
             a.start();
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    protected void afterMove() {
         // querying the RouteNavigatorAgent for route
         var message = new ACLMessage(ACLMessage.QUERY_REF);
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
         send(message);
 
         var template = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-        message = blockingReceive(template);
+
+        try {
+            message = blockingReceive(template);
+        } catch (Interrupted e) {
+            e.printStackTrace();
+            doDelete();
+        }
 
         // decoding the route
         try {
@@ -69,8 +93,20 @@ public class DriverAgent extends Agent {
             e.printStackTrace();
         }
 
+        time = Instant.now().toEpochMilli();
+
         // TODO: add behaviours for calculating position and handling new routes
         addBehaviour(new CalculatePositionOnRouteBehaviour(this));
+    }
+
+    @Override
+    public void takeDown() {
+        Thread t = new Thread(() -> {
+            try {
+                getContainerController().kill();
+            } catch (ControllerException ignore) { }
+        });
+        t.start();
     }
 
     // get
@@ -79,9 +115,9 @@ public class DriverAgent extends Agent {
     }
 
     public GeoPoint getPosition() {
-        DecodedRouteSegment segment = route.segments.get(routeFragment);
-        GeoPoint lastPoint = segment.route.get(fragmentSection);
-        GeoPoint nextPoint = segment.route.get(fragmentSection + 1);
+        DecodedRouteSegment segment = route.segments.get(routeSegment);
+        GeoPoint lastPoint = segment.route.get(segmentFragment);
+        GeoPoint nextPoint = segment.route.get(segmentFragment + 1);
         GeoPoint position = lastPoint;
 
         if (percent > 0.0) {
@@ -92,5 +128,18 @@ public class DriverAgent extends Agent {
         }
 
         return position;
+    }
+
+    private void sendRequest(Action action) {
+
+        ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+        request.setLanguage(new SLCodec().getName());
+        request.setOntology(MobilityOntology.getInstance().getName());
+        try {
+            getContentManager().fillContent(request, action);
+            request.addReceiver(action.getActor());
+            send(request);
+        }
+        catch (Exception ex) { ex.printStackTrace(); }
     }
 }
