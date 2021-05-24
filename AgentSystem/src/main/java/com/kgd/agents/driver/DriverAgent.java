@@ -3,6 +3,7 @@ package com.kgd.agents.driver;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.driver.behaviors.CalculatePositionOnRouteBehaviour;
+import com.kgd.agents.driver.behaviors.UpdatePositionInDatabaseBehaviour;
 import com.kgd.agents.models.DecodedRoute;
 import com.kgd.agents.models.DecodedRouteSegment;
 import com.kgd.agents.models.GeoPoint;
@@ -97,10 +98,13 @@ public class DriverAgent extends Agent {
 
         // TODO: add behaviours for calculating position and handling new routes
         addBehaviour(new CalculatePositionOnRouteBehaviour(this));
+        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 10*1000));
     }
 
     @Override
     public void takeDown() {
+        // TODO: delete record with position from database
+
         Thread t = new Thread(() -> {
             try {
                 getContainerController().kill();

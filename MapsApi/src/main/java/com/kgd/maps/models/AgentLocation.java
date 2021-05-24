@@ -2,7 +2,6 @@ package com.kgd.maps.models;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.maps.model.PlaceType;
 import org.bson.types.ObjectId;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.mapping.Document;

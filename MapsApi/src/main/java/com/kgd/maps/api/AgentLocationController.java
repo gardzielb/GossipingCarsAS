@@ -39,7 +39,7 @@ public class AgentLocationController {
     }
 
     @PostMapping("/add")
-    public AgentLocation addOrUpdateAgentLocation(@RequestBody AgentLocation location) {
+    public ResponseEntity<AgentLocation> addOrUpdateAgentLocation(@RequestBody AgentLocation location) {
         var mongoResult = agentLocationRepository.findAgentLocationByAIDEquals(location.AID());
 
         if (mongoResult == null) {
@@ -49,6 +49,6 @@ public class AgentLocationController {
             agentLocationRepository.save(updated);
         }
 
-        return agentLocationRepository.findAgentLocationByAIDEquals(location.AID());
+        return ResponseEntity.ok(agentLocationRepository.findAgentLocationByAIDEquals(location.AID()));
     }
 }
