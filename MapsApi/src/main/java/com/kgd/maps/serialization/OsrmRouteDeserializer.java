@@ -39,7 +39,8 @@ public class OsrmRouteDeserializer extends JsonDeserializer<Route> {
         return new Route(
                 ObjectId.get(),
                 pointFromLocationNode((ArrayNode) waypointsNode.get(0).get("location")),
-                destId, segments
+                destId, segments,
+                Double.parseDouble(routeNode.get("distance").toString())
         );
     }
 

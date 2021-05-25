@@ -1,7 +1,6 @@
 package com.kgd.maps.services;
 
 import com.google.maps.model.*;
-import com.kgd.maps.services.RouteParser;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,11 +33,15 @@ public class RouteParserTests {
         leg1.steps = new DirectionsStep[]{step1, step2};
         leg1.startLocation = polyline.get(0);
         leg1.endLocation = polyline.get(3);
+        leg1.distance = new Distance();
+        leg1.distance.inMeters = 1000;
 
         var leg2 = new DirectionsLeg();
         leg2.steps = new DirectionsStep[]{step3};
         leg2.startLocation = polyline.get(4);
         leg2.endLocation = polyline.get(5);
+        leg2.distance = new Distance();
+        leg2.distance.inMeters = 5000;
 
         var googleRoute = new DirectionsRoute();
         googleRoute.legs = new DirectionsLeg[]{leg1, leg2};
@@ -52,14 +55,12 @@ public class RouteParserTests {
         Assertions.assertEquals(googleRoute.legs[0].startLocation.lat, route.origin().getY());
         Assertions.assertEquals(googleRoute.legs[0].startLocation.lng, route.origin().getX());
         Assertions.assertEquals(destId, route.destinationId());
+        Assertions.assertEquals(leg1.distance.inMeters + leg2.distance.inMeters, route.distance());
 
         var seg1 = new EncodedPolyline(route.segments().get(0).encodedPolyline());
         Assertions.assertEquals(new EncodedPolyline(polyline.subList(0, 4)).getEncodedPath(), seg1.getEncodedPath());
 
         var seg2 = new EncodedPolyline(route.segments().get(1).encodedPolyline());
         Assertions.assertEquals(polyline3.getEncodedPath(), seg2.getEncodedPath());
-
-        var encodedPolyline = route.segments().get(0).encodedPolyline();
-        var points = new EncodedPolyline(encodedPolyline).decodePath();
     }
 }

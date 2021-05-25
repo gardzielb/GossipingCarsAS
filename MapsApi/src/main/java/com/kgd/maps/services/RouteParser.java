@@ -14,6 +14,7 @@ public class RouteParser {
 
     public Route fromGoogleResponse(DirectionsRoute route, ObjectId destinationId) {
         var segments = new ArrayList<RouteSegment>();
+        double distance = 0.0;
 
         for (var leg : route.legs) {
             var polyline = new ArrayList<LatLng>();
@@ -26,8 +27,9 @@ public class RouteParser {
                     new EncodedPolyline(polyline).getEncodedPath()
             );
             segments.add(segment);
+            distance += leg.distance.inMeters;
         }
 
-        return new Route(ObjectId.get(), segments.get(0).origin(), destinationId, segments);
+        return new Route(ObjectId.get(), segments.get(0).origin(), destinationId, segments, distance);
     }
 }
