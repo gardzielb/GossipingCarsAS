@@ -34,10 +34,14 @@ public class AgentLocationController {
     }
 
     @DeleteMapping("/find")
-    public void deleteAgentLocation(@RequestParam("aid") String AID) {
+    public ResponseEntity<AgentLocation> deleteAgentLocation(@RequestParam("aid") String AID) {
         var agentLocation = agentLocationRepository.findAgentLocationByAIDEquals(AID);
 
-        agentLocationRepository.delete(agentLocation);
+        if (agentLocation != null) {
+            agentLocationRepository.delete(agentLocation);
+        }
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
     @PostMapping("/add")

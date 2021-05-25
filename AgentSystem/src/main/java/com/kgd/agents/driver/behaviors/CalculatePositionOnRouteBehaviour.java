@@ -12,14 +12,14 @@ public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
     protected DriverAgent agent;
     public boolean done = false;
 
-    public CalculatePositionOnRouteBehaviour(DriverAgent agent){
+    public CalculatePositionOnRouteBehaviour(DriverAgent agent) {
         super();
         this.agent = agent;
     }
 
     @Override
     public void action() {
-        if (done) return;
+        if (done || agent.route == null) return;
 
         double deltaTime = (Instant.now().toEpochMilli() - agent.time) / 1000.0; // seconds
         agent.time += deltaTime * 1000.0; // milliseconds

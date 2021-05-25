@@ -18,6 +18,8 @@ public class UpdatePositionInDatabaseBehaviour extends TickerBehaviour {
 
     @Override
     protected void onTick() {
+        if (agent.route == null || agent.routeSegment == agent.route.segments.size()) return;
+
         GeoPoint location = agent.getPosition();
         AgentLocation agentLocation = new AgentLocation(null, agent.getAID().toString(), new GeoPoint(location.x(), location.y()));
 

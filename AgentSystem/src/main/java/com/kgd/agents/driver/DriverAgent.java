@@ -1,13 +1,12 @@
 package com.kgd.agents.driver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.driver.behaviors.CalculatePositionOnRouteBehaviour;
+import com.kgd.agents.driver.behaviors.NewRouteReceivedBehaviour;
+import com.kgd.agents.driver.behaviors.RequestPositionBehaviour;
 import com.kgd.agents.driver.behaviors.UpdatePositionInDatabaseBehaviour;
 import com.kgd.agents.models.DecodedRoute;
 import com.kgd.agents.models.DecodedRouteSegment;
 import com.kgd.agents.models.GeoPoint;
-import com.kgd.agents.models.Route;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
 import com.kgd.agents.services.AgentLocationService;
 import com.kgd.agents.services.HttpAgentLocationService;
@@ -16,7 +15,6 @@ import jade.content.onto.basic.Action;
 import jade.core.*;
 import jade.domain.mobility.MobilityOntology;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 import jade.wrapper.*;
 
 import java.time.Instant;
@@ -28,6 +26,9 @@ public class DriverAgent extends Agent {
     public int routeSegment = 0;
     public int segmentFragment = 0;
     public double percent = 0.0;
+
+    private double originX;
+    private double originY;
 
     // velocity [km/h]
     protected double velocity = 0.0;
@@ -63,6 +64,8 @@ public class DriverAgent extends Agent {
             throw new IllegalStateException("Expected origin, destination and car velocity [km/h] as arguments");
 
         Object[] routeManagerArgs = Arrays.copyOf(args, 3);
+        originX = Double.parseDouble((String) args[0]);
+        originY = Double.parseDouble((String) args[1]);
         velocity = Double.parseDouble((String) args[3]);
 
         // creating a route navigator
@@ -77,38 +80,24 @@ public class DriverAgent extends Agent {
     @Override
     protected void afterMove() {
         agentLocationService = new HttpAgentLocationService();
+
+        addBehaviour(new RequestPositionBehaviour(this));
+        addBehaviour(new NewRouteReceivedBehaviour(this));
+
         // querying the RouteNavigatorAgent for route
         var message = new ACLMessage(ACLMessage.QUERY_REF);
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
         send(message);
 
-        var template = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-
-        try {
-            message = blockingReceive(template);
-        } catch (Interrupted e) {
-            e.printStackTrace();
-            doDelete();
-        }
-
-        // decoding the route
-        try {
-            Route encodedRoute = (new ObjectMapper()).readValue(message.getContent(), Route.class);
-            route = new DecodedRoute(encodedRoute);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
         time = Instant.now().toEpochMilli();
 
         // TODO: add behaviours for calculating position and handling new routes
         addBehaviour(new CalculatePositionOnRouteBehaviour(this));
-        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 10*1000));
+        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 10 * 1000));
     }
 
     @Override
     public void takeDown() {
-        // TODO: delete record with position from database
         agentLocationService.deleteAgentLocationByAID(getAID().toString());
 
         Thread t = new Thread(() -> {
@@ -125,6 +114,10 @@ public class DriverAgent extends Agent {
     }
 
     public GeoPoint getPosition() {
+        if (route == null) {
+            return new GeoPoint(originX, originY);
+        }
+
         DecodedRouteSegment segment = route.segments.get(routeSegment);
         GeoPoint lastPoint = segment.route.get(segmentFragment);
         GeoPoint nextPoint = segment.route.get(segmentFragment + 1);
