@@ -10,6 +10,7 @@ import java.time.Instant;
 
 public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
     protected DriverAgent agent;
+    public boolean done = false;
 
     public CalculatePositionOnRouteBehaviour(DriverAgent agent){
         super();
@@ -18,6 +19,8 @@ public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
 
     @Override
     public void action() {
+        if (done) return;
+
         double deltaTime = (Instant.now().toEpochMilli() - agent.time) / 1000.0; // seconds
         agent.time += deltaTime * 1000.0; // milliseconds
 
@@ -46,6 +49,7 @@ public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
                     // passing the final endpoint on route
                     if (agent.routeSegment == agent.route.segments.size()) {
                         System.out.println(agent.getLocalName()+" has reached their destination.");
+                        done = true;
                         agent.takeDown();
                         return;
                     }

@@ -2,8 +2,6 @@ package com.kgd.maps.api;
 
 import com.kgd.maps.models.AgentLocation;
 import com.kgd.maps.repositories.AgentLocationRepository;
-import com.kgd.maps.services.AgentLocationService;
-import com.kgd.maps.services.MongoAgentLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,28 +12,32 @@ import java.util.List;
 @RestController
 @RequestMapping("/agent_location")
 public class AgentLocationController {
-    private final AgentLocationService agentLocationService;
     private final AgentLocationRepository agentLocationRepository;
 
-    public AgentLocationController(@Autowired MongoAgentLocationService agentLocationService,
-                                   @Autowired AgentLocationRepository agentLocationRepository) {
+    public AgentLocationController(@Autowired AgentLocationRepository agentLocationRepository) {
         this.agentLocationRepository = agentLocationRepository;
-        this.agentLocationService = agentLocationService;
     }
 
     @GetMapping("/all")
     public List<AgentLocation> getAllLocations() {
-        return agentLocationService.findAll();
+        return agentLocationRepository.findAll();
     }
 
     @GetMapping("/find")
-    public ResponseEntity<AgentLocation> getRoute(@RequestParam("aid") String AID) {
-        var agentLocation = agentLocationService.findAgentLocation(AID);
+    public ResponseEntity<AgentLocation> getAgentLocation(@RequestParam("aid") String AID) {
+        var agentLocation = agentLocationRepository.findAgentLocationByAIDEquals(AID);
 
         if (agentLocation != null) {
             return ResponseEntity.ok(agentLocation);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    @DeleteMapping("/find")
+    public void deleteAgentLocation(@RequestParam("aid") String AID) {
+        var agentLocation = agentLocationRepository.findAgentLocationByAIDEquals(AID);
+
+        agentLocationRepository.delete(agentLocation);
     }
 
     @PostMapping("/add")

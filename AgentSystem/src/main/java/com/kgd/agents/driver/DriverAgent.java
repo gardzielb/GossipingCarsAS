@@ -9,6 +9,8 @@ import com.kgd.agents.models.DecodedRouteSegment;
 import com.kgd.agents.models.GeoPoint;
 import com.kgd.agents.models.Route;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
+import com.kgd.agents.services.AgentLocationService;
+import com.kgd.agents.services.HttpAgentLocationService;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.basic.Action;
 import jade.core.*;
@@ -31,6 +33,8 @@ public class DriverAgent extends Agent {
     protected double velocity = 0.0;
 
     public DecodedRoute route = null;
+
+    private AgentLocationService agentLocationService;
 
     @Override
     protected void setup() {
@@ -72,6 +76,7 @@ public class DriverAgent extends Agent {
 
     @Override
     protected void afterMove() {
+        agentLocationService = new HttpAgentLocationService();
         // querying the RouteNavigatorAgent for route
         var message = new ACLMessage(ACLMessage.QUERY_REF);
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
@@ -104,6 +109,7 @@ public class DriverAgent extends Agent {
     @Override
     public void takeDown() {
         // TODO: delete record with position from database
+        agentLocationService.deleteAgentLocationByAID(getAID().toString());
 
         Thread t = new Thread(() -> {
             try {
