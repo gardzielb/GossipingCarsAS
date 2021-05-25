@@ -62,7 +62,9 @@ public class RouteNavigatorAgent extends Agent {
             System.out.println("Successfully changed route to " + currentRoute);
 
             var routeNotification = reply.createReply();
+            routeNotification.setPerformative(ACLMessage.INFORM);
             routeNotification.setContent((new ObjectMapper()).writeValueAsString(currentRoute));
+
             send(routeNotification);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

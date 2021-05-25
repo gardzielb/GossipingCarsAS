@@ -1,5 +1,7 @@
 HELP.md
 .gradle
+APDescription.txt
+MTPs-Main-Container.txt
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
