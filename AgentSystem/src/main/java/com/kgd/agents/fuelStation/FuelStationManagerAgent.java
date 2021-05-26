@@ -14,14 +14,12 @@ import java.util.Random;
 
 public class FuelStationManagerAgent extends Agent {
 
-    private final float MAX_PRICE = 5.50f;
-    private final float MIN_PRICE = 5.05f;
+    private final float MAX_BASE_PRICE = 5.50f;
+    private final float MIN_BASE_PRICE = 5.05f;
+
     private float fuelPrice;
 
     private GeoPoint stationLocation;
-
-    private String stationName;
-
     private String stationId;
 
     @Override
@@ -32,7 +30,7 @@ public class FuelStationManagerAgent extends Agent {
         stationId = (String) args[1];
 
         Random random = new Random();
-        fuelPrice = MIN_PRICE + random.nextFloat() * (MAX_PRICE - MIN_PRICE);
+        fuelPrice = MIN_BASE_PRICE + random.nextFloat() * (MAX_BASE_PRICE - MIN_BASE_PRICE);
 
         registerStationInDF();
 
