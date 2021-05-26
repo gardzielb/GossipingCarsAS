@@ -1,5 +1,6 @@
 package com.kgd.maps.api;
 
+import com.google.maps.model.PlaceType;
 import com.kgd.maps.models.Place;
 import com.kgd.maps.repositories.PlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/place")
@@ -21,8 +23,15 @@ public class PlaceController {
     }
 
     @GetMapping("/all")
-    public List<Place> getAllPlaces() {
-        return repository.findAll();
+    public List<Place> getAllPlaces(@RequestParam(required = false) String type) {
+        if(type != null)
+        {
+            return repository.findByType(PlaceType.valueOf(type.toUpperCase(Locale.ROOT)));
+        }
+        else
+        {
+            return repository.findAll();
+        }
     }
 
     @GetMapping("/nearby")
