@@ -29,7 +29,7 @@ public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
 
         while (distance != 0.0) {
             // drive to the next point or as far as possible
-            GeoPoint position = agent.getPosition();
+            GeoPoint position = agent.getLocationInfo().position();
             DecodedRouteSegment segment = agent.route.segments.get(agent.routeSegment);
             GeoPoint lastPoint = segment.route.get(agent.segmentFragment);
             GeoPoint nextPoint = segment.route.get(agent.segmentFragment + 1);

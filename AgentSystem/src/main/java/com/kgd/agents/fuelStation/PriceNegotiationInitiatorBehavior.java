@@ -17,8 +17,8 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
     private final List<PriceSuggestion> priceSuggestions = new ArrayList<>();
     private PriceSuggestion bestPrice;
 
-    public PriceNegotiationInitiatorBehavior(Agent agent, ACLMessage cfp, List<PriceSuggestion> priceSuggestions) {
-        super(agent, cfp);
+    public PriceNegotiationInitiatorBehavior(Agent agent, List<PriceSuggestion> priceSuggestions) {
+        super(agent, new ACLMessage(ACLMessage.CFP));
         this.priceSuggestions.addAll(priceSuggestions);
         this.bestPrice = priceSuggestions.get(0);
     }
