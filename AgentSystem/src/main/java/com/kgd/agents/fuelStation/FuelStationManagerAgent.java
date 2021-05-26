@@ -5,12 +5,11 @@ import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.Property;
-import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
 import java.util.Locale;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FuelStationManagerAgent extends Agent {
 
@@ -24,17 +23,12 @@ public class FuelStationManagerAgent extends Agent {
 
     @Override
     protected void setup() {
-
         Object[] args = getArguments();
         stationLocation = (GeoPoint) args[0];
         stationId = (String) args[1];
-
-        Random random = new Random();
-        fuelPrice = MIN_BASE_PRICE + random.nextFloat() * (MAX_BASE_PRICE - MIN_BASE_PRICE);
+        fuelPrice = (float) ThreadLocalRandom.current().nextDouble(MIN_BASE_PRICE, MAX_BASE_PRICE);
 
         registerStationInDF();
-
-        SearchConstraints sc = new SearchConstraints();
 
         addBehaviour(new NegotiatePriceBehaviour(this, fuelPrice));
     }
