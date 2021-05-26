@@ -54,8 +54,7 @@ public class RouteController {
                     routeRequest.origin(), routeRequest.destinationId(), routeRequest.waypoints()
             );
             return ResponseEntity.ok(route);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         }
