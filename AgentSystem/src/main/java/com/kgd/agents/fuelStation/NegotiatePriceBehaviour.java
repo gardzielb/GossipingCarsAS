@@ -53,7 +53,11 @@ public class NegotiatePriceBehaviour extends SSResponderDispatcher {
 
             @Override
             protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose, ACLMessage accept) throws FailureException {
-                return super.handleAcceptProposal(cfp, propose, accept);
+                var response = accept.createReply();
+                response.setPerformative(ACLMessage.INFORM);
+                response.setProtocol(FIPANames.InteractionProtocol.FIPA_ITERATED_CONTRACT_NET);
+                response.setContent(propose.getContent());
+                return response;
             }
 
             @Override

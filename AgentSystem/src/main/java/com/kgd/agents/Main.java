@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Main {
-    public static void main(String[] args) throws StaleProxyException, URISyntaxException, IOException, InterruptedException {
+    public static void main(String[] args)
+            throws StaleProxyException, URISyntaxException, IOException, InterruptedException {
         jade.Boot.main(new String[]{"-gui"});
         Runtime runtime = Runtime.instance();
 
@@ -27,12 +28,13 @@ public class Main {
 
         for (var station : stations) {
             AgentController agent = container.createNewAgent(
-                    station.name(),
+                    station.id(),
                     "com.kgd.agents.fuelStation.FuelStationManagerAgent",
                     new Object[]{
                             station.location(),
                             station.id()
-                    });
+                    }
+            );
             agent.start();
         }
     }

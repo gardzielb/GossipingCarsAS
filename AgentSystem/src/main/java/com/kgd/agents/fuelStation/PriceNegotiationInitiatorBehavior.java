@@ -36,13 +36,16 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
     protected void handleAllResponses(Vector responses, Vector acceptances) {
         super.handleAllResponses(responses, acceptances);
 
+        System.out.println(responses);
         List<ACLMessage> proposals = findPriceProposals(responses);
 
         if (proposals.isEmpty()) {
             System.out.println("No proposals");
         }
         else if (proposals.size() == 1) {
-            acceptances.add(createAcceptance(proposals.get(0)));
+            var proposal = proposals.get(0);
+            acceptances.add(createAcceptance(proposal));
+            bestPrice = new PriceSuggestion(proposal.getSender(), Float.parseFloat(proposal.getContent()));
         }
         else {
             var nextRoundCfp = new Vector<ACLMessage>();
@@ -55,7 +58,7 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
 
     @Override
     public int onEnd() {
-        System.out.println("Ending contract net");
+        System.out.println("Ending negotiation, the winner is " + bestPrice);
         return super.onEnd();
     }
 
