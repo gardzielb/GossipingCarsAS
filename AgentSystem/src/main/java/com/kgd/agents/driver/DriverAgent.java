@@ -39,46 +39,16 @@ public class DriverAgent extends Agent {
 
     @Override
     protected void setup() {
-        // create a sub-container
-        jade.core.Runtime runtime = jade.core.Runtime.instance();
-        Profile profile = new ProfileImpl();
-        profile.setParameter(Profile.CONTAINER_NAME, getLocalName()+"_container");
-        profile.setParameter(Profile.MAIN_HOST, "localhost");
-        ContainerController container = runtime.createAgentContainer(profile);
-
-        ContainerID destination = new ContainerID();
-
-        try {
-            destination.setName(container.getContainerName());
-            destination.setAddress(container.getPlatformName());
-        } catch (ControllerException e) {
-            e.printStackTrace();
-        }
-
-        doMove(destination);
-
         super.setup();
 
         Object[] args = getArguments();
         if (args == null || args.length < 3)
             throw new IllegalStateException("Expected origin, destination and car velocity [km/h] as arguments");
 
-        Object[] routeManagerArgs = Arrays.copyOf(args, 3);
         originX = Double.parseDouble((String) args[0]);
         originY = Double.parseDouble((String) args[1]);
         velocity = Double.parseDouble((String) args[3]);
 
-        // creating a route navigator
-        try {
-            AgentController a = container.createNewAgent(getLocalName() + "_route_navigator", RouteNavigatorAgent.class.getName(), routeManagerArgs);
-            a.start();
-        } catch (StaleProxyException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void afterMove() {
         agentLocationService = new HttpAgentLocationService();
 
         addBehaviour(new RequestPositionBehaviour(this));
@@ -91,7 +61,6 @@ public class DriverAgent extends Agent {
 
         time = Instant.now().toEpochMilli();
 
-        // TODO: add behaviours for calculating position and handling new routes
         addBehaviour(new CalculatePositionOnRouteBehaviour(this));
         addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 10 * 1000));
     }
