@@ -17,12 +17,14 @@ public class CachingRouteService implements RouteService {
 
     private final RouteRepository routeRepository;
     private final PlaceRepository placeRepository;
-    private final RouteFinder routeFinder = new RouteFinder(GeoApiContextProvider.getApiContext());
+    private final RouteFinder routeFinder;
 
     public CachingRouteService(@Autowired RouteRepository routeRepository,
-                               @Autowired PlaceRepository placeRepository) {
+                               @Autowired PlaceRepository placeRepository,
+                               @Autowired OsrmRouteFinder routeFinder) {
         this.routeRepository = routeRepository;
         this.placeRepository = placeRepository;
+        this.routeFinder = routeFinder;
     }
 
     @Override
@@ -36,8 +38,6 @@ public class CachingRouteService implements RouteService {
                 return cachedRoutes.get(0);
             }
         }
-
-        System.out.println("Asking google for route...");
 
         var destination = placeRepository.findById(destinationId);
         if (destination.isEmpty())

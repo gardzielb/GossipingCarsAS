@@ -13,5 +13,6 @@ public record Route(
         @JsonIgnore ObjectId id,
         @JsonProperty("origin") Point origin,
         @JsonProperty("destinationId") ObjectId destinationId,
-        @JsonProperty("segments") ArrayList<RouteSegment> segments
+        @JsonProperty("segments") ArrayList<RouteSegment> segments,
+        @JsonProperty("distance") double distance
 ) {}
