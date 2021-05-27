@@ -15,5 +15,5 @@ import java.util.List;
 public interface PlaceRepository extends MongoRepository<Place, ObjectId> {
     List<Place> findByLocationNear(Point location, Distance distance);
 
-    List<Place> findByType(@JsonProperty("type") PlaceType type);
+    List<Place> findByType(@JsonProperty("type") String type);
 }
