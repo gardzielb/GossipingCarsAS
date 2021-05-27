@@ -33,6 +33,11 @@ public class FuelCarControllerAgent extends Agent {
                 station -> findStationDetails(station, carLocationInfo.position(), carLocationInfo.destinationId())
         );
         stationsData.forEach(System.out::println);
+
+        var optimalPrices = OptimalFuelPriceCalculator
+                .calculateOptimalFuelPricesAsPriceSuggestion(stationsData.toList());
+
+        addBehaviour(new PriceNegotiationInitiatorBehavior(this, optimalPrices));
     }
 
     private FuelStationData findStationDetails(Place station, GeoPoint currentLocation, String destinationId) {
