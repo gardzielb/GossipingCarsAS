@@ -1,6 +1,7 @@
 package com.kgd.agents;
 
 import com.google.maps.model.PlaceType;
+import com.kgd.agents.carManufacturer.CarManufacturerAgent;
 import com.kgd.agents.services.HttpPlaceService;
 import com.kgd.agents.services.PlaceService;
 import jade.core.Profile;
@@ -16,7 +17,7 @@ import java.net.URISyntaxException;
 public class Main {
     public static void main(String[] args)
             throws StaleProxyException, URISyntaxException, IOException, InterruptedException {
-        jade.Boot.main(new String[]{"-gui"});
+        jade.Boot.main(new String[]{"-gui", "factory:com.kgd.agents.carManufacturer.CarManufacturerAgent"});
         Runtime runtime = Runtime.instance();
 
         PlaceService placeService = new HttpPlaceService();
