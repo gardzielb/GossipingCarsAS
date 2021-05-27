@@ -6,6 +6,7 @@ import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
+import jade.proto.ContractNetInitiator;
 import jade.proto.ContractNetResponder;
 import jade.proto.SSIteratedContractNetResponder;
 import jade.proto.SSResponderDispatcher;

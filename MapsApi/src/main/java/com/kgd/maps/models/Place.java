@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public record Place(
         @JsonProperty("id") ObjectId id,
         @JsonProperty("name") String name,
-        @JsonProperty("type") PlaceType type,
+        @JsonProperty("type") String type,
         @JsonProperty("location") Point location,
         @JsonProperty("address") String address,
         @JsonProperty("rating") double rating
