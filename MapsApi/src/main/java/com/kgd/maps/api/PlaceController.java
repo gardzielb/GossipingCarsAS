@@ -24,12 +24,9 @@ public class PlaceController {
 
     @GetMapping("/all")
     public List<Place> getAllPlaces(@RequestParam(required = false) String type) {
-        if(type != null)
-        {
+        if (type != null) {
             return repository.findByType(PlaceType.valueOf(type.toUpperCase(Locale.ROOT)));
-        }
-        else
-        {
+        } else {
             return repository.findAll();
         }
     }
