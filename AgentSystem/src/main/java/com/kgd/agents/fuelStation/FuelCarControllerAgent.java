@@ -10,6 +10,11 @@ import com.kgd.agents.services.HttpPlaceService;
 import com.kgd.agents.services.HttpRouteService;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.Property;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -32,21 +37,43 @@ public class FuelCarControllerAgent extends Agent {
         var stationsData = nearbyStations.stream().map(
                 station -> findStationDetails(station, carLocationInfo.position(), carLocationInfo.destinationId())
         );
-        stationsData.forEach(System.out::println);
+
+        var asList = stationsData.toList();
 
         var optimalPrices = OptimalFuelPriceCalculator
-                .calculateOptimalFuelPricesAsPriceSuggestion(stationsData.toList());
+                .calculateOptimalFuelPricesAsPriceSuggestion(asList);
 
         addBehaviour(new PriceNegotiationInitiatorBehavior(this, optimalPrices));
     }
 
     private FuelStationData findStationDetails(Place station, GeoPoint currentLocation, String destinationId) {
         double routeDistance = findDistanceForStation(station, currentLocation, destinationId);
-        return new FuelStationData(
-                new AID(), // TODO: from DF
-                0.0, // TODO: from DF
-                routeDistance
-        );
+
+        DFAgentDescription dfd = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setName(station.id());
+        dfd.addServices(sd);
+
+        try {
+            DFAgentDescription[] result = DFService.search(this, dfd);
+            ServiceDescription sf = (ServiceDescription) (result[0].getAllServices().next());
+            var iter = sf.getAllProperties();
+
+            Property p = new Property();
+
+            while (!"price".equals(p.getName()) && iter.hasNext()) {
+                p = (Property) (iter.next());
+            }
+
+            return new FuelStationData(
+                    result[0].getName(),
+                    Float.parseFloat((String) p.getValue()),
+                    routeDistance
+            );
+        } catch (FIPAException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private double findDistanceForStation(Place station, GeoPoint location, String destinationId) {

@@ -48,6 +48,9 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
             bestPrice = new PriceSuggestion(proposal.getSender(), Float.parseFloat(proposal.getContent()));
         }
         else {
+            var exampleProposal = proposals.get(0);
+            bestPrice = new PriceSuggestion(exampleProposal.getSender(), Float.parseFloat(exampleProposal.getContent()));
+
             var nextRoundCfp = new Vector<ACLMessage>();
             proposals.forEach(
                     proposal -> nextRoundCfp.add(createCfp(proposal.getSender(), proposal.getContent()))
