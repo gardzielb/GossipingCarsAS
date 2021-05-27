@@ -4,21 +4,21 @@ import com.kgd.agents.driver.behaviors.CalculatePositionOnRouteBehaviour;
 import com.kgd.agents.driver.behaviors.NewRouteReceivedBehaviour;
 import com.kgd.agents.driver.behaviors.RequestPositionBehaviour;
 import com.kgd.agents.driver.behaviors.UpdatePositionInDatabaseBehaviour;
+import com.kgd.agents.models.CarLocationData;
 import com.kgd.agents.models.DecodedRoute;
 import com.kgd.agents.models.DecodedRouteSegment;
 import com.kgd.agents.models.GeoPoint;
-import com.kgd.agents.navigator.RouteNavigatorAgent;
 import com.kgd.agents.services.AgentLocationService;
 import com.kgd.agents.services.HttpAgentLocationService;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.basic.Action;
-import jade.core.*;
+import jade.core.AID;
+import jade.core.Agent;
 import jade.domain.mobility.MobilityOntology;
 import jade.lang.acl.ACLMessage;
-import jade.wrapper.*;
+import jade.wrapper.ControllerException;
 
 import java.time.Instant;
-import java.util.Arrays;
 
 public class DriverAgent extends Agent {
 
@@ -32,6 +32,7 @@ public class DriverAgent extends Agent {
 
     // velocity [km/h]
     protected double velocity = 0.0;
+    private String destinationId;
 
     public DecodedRoute route = null;
 
@@ -47,6 +48,7 @@ public class DriverAgent extends Agent {
 
         originX = Double.parseDouble((String) args[0]);
         originY = Double.parseDouble((String) args[1]);
+        destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
 
         agentLocationService = new HttpAgentLocationService();
@@ -82,9 +84,9 @@ public class DriverAgent extends Agent {
         return velocity;
     }
 
-    public GeoPoint getPosition() {
+    public CarLocationData getLocationInfo() {
         if (route == null) {
-            return new GeoPoint(originX, originY);
+            return new CarLocationData(new GeoPoint(originX, originY), destinationId);
         }
 
         DecodedRouteSegment segment = route.segments.get(routeSegment);
@@ -99,7 +101,7 @@ public class DriverAgent extends Agent {
             position = new GeoPoint(position.x() + percent * dx, position.y() + percent * dy);
         }
 
-        return position;
+        return new CarLocationData(position, destinationId);
     }
 
     private void sendRequest(Action action) {

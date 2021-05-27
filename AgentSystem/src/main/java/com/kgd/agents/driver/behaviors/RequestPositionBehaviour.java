@@ -21,11 +21,11 @@ public class RequestPositionBehaviour extends CyclicBehaviour {
 
         if (message == null) return;
 
-        var location = agent.getPosition();
+        var locationData = agent.getLocationInfo();
         var reply = message.createReply();
 
         try {
-            reply.setContent((new ObjectMapper()).writeValueAsString(location));
+            reply.setContent((new ObjectMapper()).writeValueAsString(locationData));
         } catch (JsonProcessingException e) {
             reply.setContent(null);
         }
