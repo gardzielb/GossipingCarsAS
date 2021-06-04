@@ -10,9 +10,10 @@ import java.util.ArrayList;
 
 @Document(collection = "routes")
 public record Route(
-        @JsonIgnore ObjectId id,
-        @JsonProperty("origin") Point origin,
-        @JsonProperty("destinationId") ObjectId destinationId,
-        @JsonProperty("segments") ArrayList<RouteSegment> segments,
-        @JsonProperty("distance") double distance
+		@JsonIgnore ObjectId id,
+		@JsonProperty("origin") Point origin,
+		@JsonProperty("destinationId") ObjectId destinationId,
+		@JsonProperty("segments") ArrayList<RouteSegment> segments,
+		@JsonProperty("distance") double distance,
+		@JsonProperty("tag") String tag
 ) {}

@@ -11,5 +11,5 @@ import java.util.List;
 public interface RouteFinder {
     List<Route> findRoute(Point origin, Place destination);
 
-    List<Route> findRoute(Point origin, Place destination, Point[] waypoints);
+    List<Route> findRoute(Point origin, Place destination, Point[] waypoints, String tag);
 }

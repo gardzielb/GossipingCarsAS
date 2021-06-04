@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface RouteService {
-    Route findRoute(Point origin, ObjectId destinationId, Point[] waypoints);
+    Route findRoute(Point origin, ObjectId destinationId, Point[] waypoints, String tag);
 
     List<Route> findAll();
 }

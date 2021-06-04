@@ -28,7 +28,7 @@ public class CachingRouteService implements RouteService {
     }
 
     @Override
-    public Route findRoute(Point origin, ObjectId destinationId, Point[] waypoints) {
+    public Route findRoute(Point origin, ObjectId destinationId, Point[] waypoints, String tag) {
         if (waypoints.length == 0) {
             var cachedRoutes = routeRepository.findByOriginNearAndDestinationIdEquals(
                     origin, new Distance(0.1, Metrics.KILOMETERS), destinationId
@@ -43,7 +43,7 @@ public class CachingRouteService implements RouteService {
         if (destination.isEmpty())
             throw new IllegalArgumentException("Destination place does not exist");
 
-        var routes = routeFinder.findRoute(origin, destination.get(), waypoints);
+        var routes = routeFinder.findRoute(origin, destination.get(), waypoints, tag);
 
         if (waypoints.length == 0)
             routeRepository.insert(routes); // cache new routes in DB

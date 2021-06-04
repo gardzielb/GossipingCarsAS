@@ -18,39 +18,39 @@ import java.util.List;
 @Service
 public class OsrmRouteFinder implements RouteFinder {
 
-    private final OsrmRequestBuilder requestBuilder = new OsrmRequestBuilder();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+	private final OsrmRequestBuilder requestBuilder = new OsrmRequestBuilder();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Override
-    public List<Route> findRoute(Point origin, Place destination) {
-        return findRoute(origin, destination, new Point[]{});
-    }
+	@Override
+	public List<Route> findRoute(Point origin, Place destination) {
+		return findRoute(origin, destination, new Point[]{}, "");
+	}
 
-    @Override
-    public List<Route> findRoute(Point origin, Place destination, Point[] waypoints) {
-        try {
-            var request = requestBuilder
-                    .includeSteps()
-                    .origin(origin).destination(destination.location())
-                    .waypoints(waypoints).build();
-            var response = HttpClient
-                    .newBuilder().build()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
+	@Override
+	public List<Route> findRoute(Point origin, Place destination, Point[] waypoints, String tag) {
+		try {
+			var request = requestBuilder
+					.includeSteps()
+					.origin(origin).destination(destination.location())
+					.waypoints(waypoints).build();
+			var response = HttpClient
+					.newBuilder().build()
+					.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println(response.body());
+			System.out.println(response.body());
 
-            registerRouteDeserializer(destination.id());
-            return List.of(objectMapper.readValue(response.body(), Route.class));
-        }
-        catch (URISyntaxException | IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+			registerRouteDeserializer(destination.id(), tag);
+			return List.of(objectMapper.readValue(response.body(), Route.class));
+		}
+		catch (URISyntaxException | IOException | InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-    private void registerRouteDeserializer(ObjectId destId) {
-        var module = new SimpleModule();
-        module.addDeserializer(Route.class, new OsrmRouteDeserializer(destId));
-        objectMapper.registerModule(module);
-    }
+	private void registerRouteDeserializer(ObjectId destId, String routeTag) {
+		var module = new SimpleModule();
+		module.addDeserializer(Route.class, new OsrmRouteDeserializer(destId, routeTag));
+		objectMapper.registerModule(module);
+	}
 }

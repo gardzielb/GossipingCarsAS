@@ -27,36 +27,37 @@ import java.util.List;
 @RequestMapping("/route")
 public class RouteController {
 
-    private final RouteService routeService;
+	private final RouteService routeService;
 
-    public RouteController(@Autowired CachingRouteService routeService) {
-        this.routeService = routeService;
-    }
+	public RouteController(@Autowired CachingRouteService routeService) {
+		this.routeService = routeService;
+	}
 
-    @GetMapping("/all")
-    public List<Route> getAllRoutes() {
-        return routeService.findAll();
-    }
+	@GetMapping("/all")
+	public List<Route> getAllRoutes() {
+		return routeService.findAll();
+	}
 
-    @GetMapping("/find")
-    public ResponseEntity<Route> getRoute(@RequestParam("routeRequest") String encodedRouteRequest) {
-        var routeRequestJson = URLDecoder.decode(encodedRouteRequest, StandardCharsets.UTF_8);
+	@GetMapping("/find")
+	public ResponseEntity<Route> getRoute(@RequestParam("routeRequest") String encodedRouteRequest) {
+		var routeRequestJson = URLDecoder.decode(encodedRouteRequest, StandardCharsets.UTF_8);
 
-        var objectMapper = new ObjectMapper();
-        var module = new SimpleModule();
-        module.addDeserializer(Point.class, new PointDeserializer());
-        module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
-        objectMapper.registerModule(module);
+		var objectMapper = new ObjectMapper();
+		var module = new SimpleModule();
+		module.addDeserializer(Point.class, new PointDeserializer());
+		module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
+		objectMapper.registerModule(module);
 
-        try {
-            var routeRequest = objectMapper.readValue(routeRequestJson, RouteRequest.class);
-            var route = routeService.findRoute(
-                    routeRequest.origin(), routeRequest.destinationId(), routeRequest.waypoints()
-            );
-            return ResponseEntity.ok(route);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
-        }
-    }
+		try {
+			var routeRequest = objectMapper.readValue(routeRequestJson, RouteRequest.class);
+			var route = routeService.findRoute(
+					routeRequest.origin(), routeRequest.destinationId(), routeRequest.waypoints(), routeRequest.tag()
+			);
+			return ResponseEntity.ok(route);
+		}
+		catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
+		}
+	}
 }

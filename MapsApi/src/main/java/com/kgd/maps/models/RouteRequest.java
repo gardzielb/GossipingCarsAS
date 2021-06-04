@@ -7,5 +7,6 @@ import org.springframework.data.geo.Point;
 public record RouteRequest(
         @JsonProperty("origin") Point origin,
         @JsonProperty("destinationId") ObjectId destinationId,
-        @JsonProperty("waypoints") Point[] waypoints
+        @JsonProperty("waypoints") Point[] waypoints,
+		@JsonProperty("tag") String tag
 ) {}
