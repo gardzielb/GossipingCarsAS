@@ -2,7 +2,7 @@ package com.kgd.agents.navigator.behaviors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.GeoPoint;
+import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;

@@ -1,4 +1,4 @@
-package com.kgd.agents.models;
+package com.kgd.agents.services;
 
 public class EarthDistanceCalculator {
     public static double distance(double lat1, double lat2, double lon1,

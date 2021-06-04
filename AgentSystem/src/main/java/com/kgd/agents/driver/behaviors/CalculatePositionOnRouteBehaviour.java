@@ -1,9 +1,9 @@
 package com.kgd.agents.driver.behaviors;
 
 import com.kgd.agents.driver.DriverAgent;
-import com.kgd.agents.models.DecodedRouteSegment;
-import com.kgd.agents.models.EarthDistanceCalculator;
-import com.kgd.agents.models.GeoPoint;
+import com.kgd.agents.models.geodata.DecodedRouteSegment;
+import com.kgd.agents.services.EarthDistanceCalculator;
+import com.kgd.agents.models.geodata.GeoPoint;
 import jade.core.behaviours.CyclicBehaviour;
 
 import java.time.Instant;

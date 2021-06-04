@@ -1,8 +1,8 @@
 package com.kgd.agents.services;
 
 import com.google.maps.model.PlaceType;
-import com.kgd.agents.models.GeoPoint;
-import com.kgd.agents.models.Place;
+import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.Place;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,6 +13,6 @@ public interface PlaceService {
 
     List<Place> findAllByType(PlaceType type) throws URISyntaxException, IOException, InterruptedException;
 
-    public List<Place> findNearbyByType(PlaceType type, GeoPoint location, double kmRadius)
+    List<Place> findNearbyByType( PlaceType type, GeoPoint location, double kmRadius )
             throws IOException, InterruptedException;
 }

@@ -1,8 +1,8 @@
 package com.kgd.agents.driver.behaviors;
 
 import com.kgd.agents.driver.DriverAgent;
-import com.kgd.agents.models.AgentLocation;
-import com.kgd.agents.models.GeoPoint;
+import com.kgd.agents.models.geodata.AgentLocation;
+import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.services.AgentLocationService;
 import com.kgd.agents.services.HttpAgentLocationService;
 import jade.core.behaviours.TickerBehaviour;

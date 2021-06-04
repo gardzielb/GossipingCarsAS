@@ -1,4 +1,4 @@
-package com.kgd.agents.models;
+package com.kgd.agents.models.geodata;
 
 import com.google.maps.model.EncodedPolyline;
 

@@ -1,9 +1,9 @@
 package com.kgd.agents.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.GeoPoint;
-import com.kgd.agents.models.Route;
-import com.kgd.agents.models.RouteRequest;
+import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.Route;
+import com.kgd.agents.models.messages.RouteRequest;
 
 import java.io.IOException;
 import java.net.URI;

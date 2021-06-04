@@ -1,8 +1,8 @@
 package com.kgd.agents.navigator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.GeoPoint;
-import com.kgd.agents.models.Route;
+import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.Route;
 import com.kgd.agents.navigator.behaviors.HandleNewWaypointRequestBehavior;
 import com.kgd.agents.navigator.behaviors.HandleRouteQueryBehavior;
 import com.kgd.agents.services.HttpRouteService;
