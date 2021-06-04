@@ -2,8 +2,8 @@ package com.kgd.agents;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.GeoPoint;
-import com.kgd.agents.models.Route;
+import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.Route;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;

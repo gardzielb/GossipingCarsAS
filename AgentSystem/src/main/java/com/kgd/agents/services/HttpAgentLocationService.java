@@ -1,8 +1,7 @@
 package com.kgd.agents.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.AgentLocation;
+import com.kgd.agents.models.geodata.AgentLocation;
 
 import java.io.IOException;
 import java.net.URI;

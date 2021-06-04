@@ -1,6 +1,6 @@
 package com.kgd.agents.fuelStation;
 
-import com.kgd.agents.models.GeoPoint;
+import com.kgd.agents.models.geodata.GeoPoint;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;

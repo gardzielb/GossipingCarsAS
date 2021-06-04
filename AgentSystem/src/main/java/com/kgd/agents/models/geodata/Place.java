@@ -1,4 +1,4 @@
-package com.kgd.agents.models;
+package com.kgd.agents.models.geodata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.maps.model.PlaceType;

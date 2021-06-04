@@ -1,6 +1,6 @@
 package com.kgd.agents.services;
 
-import com.kgd.agents.models.AgentLocation;
+import com.kgd.agents.models.geodata.AgentLocation;
 
 import java.io.IOException;
 

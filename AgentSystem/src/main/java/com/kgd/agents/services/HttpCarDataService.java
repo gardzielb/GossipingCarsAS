@@ -1,7 +1,7 @@
 package com.kgd.agents.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.CarData;
+import com.kgd.agents.models.geodata.CarData;
 
 import java.io.IOException;
 import java.net.URI;
