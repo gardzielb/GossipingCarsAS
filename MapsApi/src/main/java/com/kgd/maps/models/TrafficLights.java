@@ -10,5 +10,5 @@ public record TrafficLights(
 		@JsonProperty("id") ObjectId id,
 		@JsonProperty("location") Point location,
 		@JsonProperty("approachDirections") Point[] approachDirections,
-		@JsonProperty("routeTag") String routeTag
+		@JsonProperty("routeTags") String[] routeTags
 ) {}

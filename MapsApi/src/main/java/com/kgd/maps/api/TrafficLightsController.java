@@ -11,24 +11,24 @@ import java.util.List;
 @RequestMapping("/lights")
 public class TrafficLightsController {
 
-	private final TrafficLightsRepository lightsRepository;
+    private final TrafficLightsRepository lightsRepository;
 
-	public TrafficLightsController(@Autowired TrafficLightsRepository lightsRepository) {
-		this.lightsRepository = lightsRepository;
-	}
+    public TrafficLightsController(@Autowired TrafficLightsRepository lightsRepository) {
+        this.lightsRepository = lightsRepository;
+    }
 
-	@GetMapping("/all")
-	public List<TrafficLights> getAll() {
-		return lightsRepository.findAll();
-	}
+    @GetMapping("/all")
+    public List<TrafficLights> getAll() {
+        return lightsRepository.findAll();
+    }
 
-	@GetMapping("/find/{routeTag}")
-	public List<TrafficLights> getByRouteTag(@PathVariable String routeTag) {
-		return lightsRepository.findAllByRouteTag(routeTag);
-	}
+    @GetMapping("/find/{routeTag}")
+    public List<TrafficLights> getByRouteTag(@PathVariable String routeTag) {
+        return lightsRepository.findAllByRouteTagsContains(routeTag);
+    }
 
-	@PostMapping("/add")
-	public TrafficLights addTrafficLights(@RequestBody TrafficLights trafficLights) {
-		return lightsRepository.insert(trafficLights);
-	}
+    @PostMapping("/add")
+    public TrafficLights addTrafficLights(@RequestBody TrafficLights trafficLights) {
+        return lightsRepository.insert(trafficLights);
+    }
 }

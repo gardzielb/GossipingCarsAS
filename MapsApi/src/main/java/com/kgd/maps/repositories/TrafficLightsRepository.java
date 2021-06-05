@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface TrafficLightsRepository extends MongoRepository<TrafficLights, ObjectId> {
-	List<TrafficLights> findAllByRouteTag(String routeTag);
+    List<TrafficLights> findAllByRouteTagsContains(String routeTag);
 }
