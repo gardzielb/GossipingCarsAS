@@ -4,21 +4,23 @@ import com.kgd.agents.driver.DriverAgent;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
 import com.kgd.agents.services.EarthDistanceCalculator;
 import com.kgd.agents.models.geodata.GeoPoint;
-import jade.core.behaviours.CyclicBehaviour;
+import jade.core.AID;
+import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 
 import java.time.Instant;
 
-public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
+public class CalculatePositionOnRouteBehaviour extends TickerBehaviour {
     protected DriverAgent agent;
     public boolean done = false;
 
     public CalculatePositionOnRouteBehaviour(DriverAgent agent) {
-        super();
+        super(agent, 500);
         this.agent = agent;
     }
 
     @Override
-    public void action() {
+    public void onTick() {
         if (done || agent.route == null) return;
 
         double deltaTime = (Instant.now().toEpochMilli() - agent.time) / 1000.0; // seconds
@@ -26,6 +28,13 @@ public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
 
         // distance in kilometers
         double distance = deltaTime * (agent.getVelocity() / 3600.0);
+
+        String name = agent.getLocalName() + "_fuel_controller";
+
+        var message = new ACLMessage(ACLMessage.INFORM);
+        message.addReceiver(new AID(name, AID.ISLOCALNAME));
+        message.setContent(Double.toString(distance));
+        agent.send(message);
 
         while (distance != 0.0) {
             // drive to the next point or as far as possible
@@ -52,6 +61,11 @@ public class CalculatePositionOnRouteBehaviour extends CyclicBehaviour {
                         done = true;
                         agent.takeDown();
                         return;
+                    } else {
+                        // PALIWKO TIME
+                        ACLMessage fuelNotification = new ACLMessage(ACLMessage.REQUEST);
+                        fuelNotification.addReceiver(new AID(agent.getLocalName() + "_fuel_controller", AID.ISLOCALNAME));
+                        agent.send(fuelNotification);
                     }
                 }
             } else {

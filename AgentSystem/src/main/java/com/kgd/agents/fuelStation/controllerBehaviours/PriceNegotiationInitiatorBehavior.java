@@ -1,26 +1,33 @@
-package com.kgd.agents.fuelStation;
+package com.kgd.agents.fuelStation.controllerBehaviours;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kgd.agents.fuelStation.FuelCarControllerAgent;
+import com.kgd.agents.fuelStation.PriceSuggestion;
+import com.kgd.agents.models.geodata.GeoPoint;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
 
+    private final FuelCarControllerAgent agent;
     private final List<PriceSuggestion> priceSuggestions = new ArrayList<>();
+    private final HashMap<AID, GeoPoint> locations = new HashMap<>();
     private PriceSuggestion bestPrice;
 
-    public PriceNegotiationInitiatorBehavior(Agent agent, List<PriceSuggestion> priceSuggestions) {
+    public PriceNegotiationInitiatorBehavior(FuelCarControllerAgent agent, List<PriceSuggestion> priceSuggestions) {
         super(agent, new ACLMessage(ACLMessage.CFP));
+        this.agent = agent;
         this.priceSuggestions.addAll(priceSuggestions);
         this.bestPrice = priceSuggestions.get(0);
+        priceSuggestions.forEach(
+                station -> locations.put(station.stationAid(), station.location())
+        );
     }
 
     @Override
@@ -45,11 +52,11 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
         else if (proposals.size() == 1) {
             var proposal = proposals.get(0);
             acceptances.add(createAcceptance(proposal));
-            bestPrice = new PriceSuggestion(proposal.getSender(), Float.parseFloat(proposal.getContent()));
+            bestPrice = new PriceSuggestion(proposal.getSender(), null, Float.parseFloat(proposal.getContent()));
         }
         else {
             var exampleProposal = proposals.get(0);
-            bestPrice = new PriceSuggestion(exampleProposal.getSender(), Float.parseFloat(exampleProposal.getContent()));
+            bestPrice = new PriceSuggestion(exampleProposal.getSender(), null, Float.parseFloat(exampleProposal.getContent()));
 
             var nextRoundCfp = new Vector<ACLMessage>();
             proposals.forEach(
@@ -62,6 +69,24 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
     @Override
     public int onEnd() {
         System.out.println("Ending negotiation, the winner is " + bestPrice);
+        agent.negotiatedPrice = bestPrice;
+
+        String name = agent.getLocalName();
+        name = name.substring(0, name.length() - "_fuel_controller".length());
+
+        // request a new waypoint
+        var message = new ACLMessage(ACLMessage.REQUEST);
+        message.addReceiver(new AID(name+"_route_navigator", AID.ISLOCALNAME));
+        try {
+            message.setContent((new ObjectMapper()).writeValueAsString(
+                    new GeoPoint[] { locations.get(agent.negotiatedPrice.stationAid()) }
+            ));
+        } catch (JsonProcessingException ignore) { }
+        agent.send(message);
+
+        agent.negotiatedPrice = bestPrice;
+        agent.removeBehaviour(this);
+
         return super.onEnd();
     }
 
