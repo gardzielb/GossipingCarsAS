@@ -6,9 +6,11 @@ import com.kgd.agents.models.geodata.CarData;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,11 +40,12 @@ public class HttpCarDataService implements CarDataService {
     }
 
     @Override
-    public void deleteAll() {
+    public void deleteById(String Id) {
         String urlBase = System.getenv("MAPS_API_URL");
 
         var urlBuilder = new StringBuilder(urlBase)
-                .append("/car_requests/all");
+                .append("/car_requests?id=")
+                .append(URLEncoder.encode(Id, StandardCharsets.UTF_8));
 
         try {
             var request = HttpRequest

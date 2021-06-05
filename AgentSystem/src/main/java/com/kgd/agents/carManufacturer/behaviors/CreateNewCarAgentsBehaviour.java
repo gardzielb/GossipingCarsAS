@@ -54,9 +54,9 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
             } catch (StaleProxyException e) {
                 e.printStackTrace();
             }
-        }
 
-        carDataService.deleteAll();
+            carDataService.deleteById(request.id());
+        }
     }
 
     private static void nextCar() { carNumber++; }
