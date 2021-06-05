@@ -28,11 +28,10 @@ public class CalculatePositionOnRouteBehaviour extends TickerBehaviour {
 
         // distance in kilometers
         double distance = deltaTime * (agent.getVelocity() / 3600.0);
-
-        String name = agent.getLocalName() + "_fuel_controller";
+        agent.fullDistance += distance;
 
         var message = new ACLMessage(ACLMessage.INFORM);
-        message.addReceiver(new AID(name, AID.ISLOCALNAME));
+        message.addReceiver(new AID(agent.getLocalName() + "_fuel_controller", AID.ISLOCALNAME));
         message.setContent(Double.toString(distance));
         agent.send(message);
 
@@ -55,14 +54,14 @@ public class CalculatePositionOnRouteBehaviour extends TickerBehaviour {
                     agent.routeSegment++;
                     agent.segmentFragment = 0;
 
-                    // passing the final endpoint on route
                     if (agent.routeSegment == agent.route.segments.size()) {
+                        // passing the final endpoint on route
                         System.out.println(agent.getLocalName()+" has reached their destination.");
                         done = true;
                         agent.takeDown();
                         return;
                     } else {
-                        // PALIWKO TIME
+                        // passing a fuel station, notify FuelManager about filling the tank
                         ACLMessage fuelNotification = new ACLMessage(ACLMessage.REQUEST);
                         fuelNotification.addReceiver(new AID(agent.getLocalName() + "_fuel_controller", AID.ISLOCALNAME));
                         agent.send(fuelNotification);

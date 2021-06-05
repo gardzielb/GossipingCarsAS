@@ -1,6 +1,7 @@
 package com.kgd.agents.fuelStation.controllerBehaviours;
 
 import com.kgd.agents.fuelStation.FuelCarControllerAgent;
+import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -33,7 +34,15 @@ public class UpdateFuelLevelBehaviour extends TickerBehaviour {
             double diff = agent.capacity - agent.currentCapacity;
             double cost = diff * agent.negotiatedPrice.price();
 
-            // TODO: send costs to the cost controller agent or smth
+            // send cost to cost manager
+            String name = agent.getLocalName();
+            name = name.substring(0, name.length() - "_fuel_controller".length());
+
+            message = new ACLMessage(ACLMessage.INFORM);
+            message.addReceiver(new AID(name + "_cost_controller", AID.ISLOCALNAME));
+            message.setContent(Double.toString(cost));
+
+            agent.send(message);
 
             agent.currentCapacity = agent.capacity;
             agent.onRouteToStation = false;
