@@ -14,16 +14,35 @@ import java.util.List;
 public class HttpTrafficLightsService implements TrafficLightsService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String urlBase = System.getenv("MAPS_API_URL");
 
     @Override
     public List<TrafficLights> findAllByRouteTag(String tag) throws IOException, InterruptedException {
-        String urlBase = System.getenv("MAPS_API_URL");
-
         var urlBuilder = new StringBuilder(urlBase).append("/lights/find/").append(tag);
 
         try {
             var request = HttpRequest
                     .newBuilder(new URI(urlBuilder.toString()))
+                    .GET().build();
+            var response = HttpClient
+                    .newBuilder().build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(
+                    response.body(),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, TrafficLights.class)
+            );
+        }
+        catch (URISyntaxException e) {
+            System.out.println("Set 'MAPS_API_URL' env variable to valid URL");
+            return null;
+        }
+    }
+
+    @Override
+    public List<TrafficLights> findAll() throws IOException, InterruptedException {
+        try {
+            var request = HttpRequest
+                    .newBuilder(new URI(urlBase + "/lights/all"))
                     .GET().build();
             var response = HttpClient
                     .newBuilder().build()

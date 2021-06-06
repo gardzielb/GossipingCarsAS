@@ -45,7 +45,7 @@ public class DriverAgent extends Agent {
         super.setup();
 
         Object[] args = getArguments();
-        if (args == null || args.length < 3)
+        if (args == null || args.length < 4)
             throw new IllegalStateException("Expected origin, destination and car velocity [km/h] as arguments");
 
         originX = Double.parseDouble((String) args[0]);

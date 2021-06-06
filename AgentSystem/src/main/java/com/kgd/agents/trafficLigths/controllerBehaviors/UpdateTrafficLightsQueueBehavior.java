@@ -1,4 +1,4 @@
-package com.kgd.agents.trafficLigths.behaviors;
+package com.kgd.agents.trafficLigths.controllerBehaviors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.geodata.Route;
@@ -23,17 +23,20 @@ public class UpdateTrafficLightsQueueBehavior extends CyclicBehaviour {
 
     @Override
     public void action() {
-        var routeMessage = agent.blockingReceive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
-        if (routeMessage == null)
-            return;
-
-        try {
-            var route = objectMapper.readValue(routeMessage.getContent(), Route.class);
-            var trafficLights = lightsService.findAllByRouteTag(route.tag());
-            agent.updateLightsQueue(route, trafficLights);
+        var routeMessage = agent.receive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+        if (routeMessage != null) {
+            try {
+                var route = objectMapper.readValue(routeMessage.getContent(), Route.class);
+//            var trafficLights = lightsService.findAllByRouteTag(route.tag());
+                var trafficLights = lightsService.findAll();
+                agent.updateLightsQueue(route, trafficLights);
+            }
+            catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+        else {
+            block();
         }
     }
 }

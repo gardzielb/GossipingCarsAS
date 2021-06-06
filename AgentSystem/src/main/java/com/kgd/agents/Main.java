@@ -3,7 +3,9 @@ package com.kgd.agents;
 import com.google.maps.model.PlaceType;
 import com.kgd.agents.carManufacturer.CarManufacturerAgent;
 import com.kgd.agents.services.HttpPlaceService;
+import com.kgd.agents.services.HttpTrafficLightsService;
 import com.kgd.agents.services.PlaceService;
+import com.kgd.agents.trafficLigths.TrafficLightsManagerAgent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -19,6 +21,8 @@ public class Main {
             throws StaleProxyException, URISyntaxException, IOException, InterruptedException {
         jade.Boot.main(new String[]{"-gui", "factory:com.kgd.agents.carManufacturer.CarManufacturerAgent"});
         Runtime runtime = Runtime.instance();
+
+        createTrafficLights(runtime);
 
         PlaceService placeService = new HttpPlaceService();
         var stations = placeService.findAllByType(PlaceType.GAS_STATION);
@@ -37,6 +41,22 @@ public class Main {
                     }
             );
             agent.start();
+        }
+    }
+
+    private static void createTrafficLights(Runtime jadeRuntime)
+            throws IOException, InterruptedException, StaleProxyException {
+        var profile = new ProfileImpl();
+        profile.setParameter(Profile.CONTAINER_NAME, "TrafficLights");
+        var tlContainer = jadeRuntime.createAgentContainer(profile);
+
+        var tlService = new HttpTrafficLightsService();
+
+        for (var tl : tlService.findAll()) {
+            var agentController = tlContainer.createNewAgent(
+                    tl.id(), TrafficLightsManagerAgent.class.getName(), new Object[]{tl}
+            );
+            agentController.start();
         }
     }
 }
