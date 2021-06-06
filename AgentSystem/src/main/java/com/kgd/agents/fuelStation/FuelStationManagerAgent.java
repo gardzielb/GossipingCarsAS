@@ -1,5 +1,6 @@
 package com.kgd.agents.fuelStation;
 
+import com.kgd.agents.fuelStation.managerBehaviours.NegotiatePriceBehaviour;
 import com.kgd.agents.models.geodata.GeoPoint;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -18,7 +19,7 @@ public class FuelStationManagerAgent extends Agent {
 
     private float fuelPrice;
 
-    private GeoPoint stationLocation;
+    public GeoPoint stationLocation;
     private String stationId;
 
     @Override

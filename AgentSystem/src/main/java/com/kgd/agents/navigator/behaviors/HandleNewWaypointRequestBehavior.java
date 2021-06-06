@@ -23,24 +23,12 @@ public class HandleNewWaypointRequestBehavior extends CyclicBehaviour {
         var message = agent.receive(template);
 
         if (message != null) {
-            var agreeResponse = message.createReply();
-            agreeResponse.setPerformative(ACLMessage.AGREE);
-            agent.send(agreeResponse);
-
-            var resultResponse = message.createReply();
             try {
                 var waypoints = objectMapper.readValue(message.getContent(), GeoPoint[].class);
                 agent.addWaypoints(waypoints);
-                resultResponse.setPerformative(ACLMessage.INFORM);
-                resultResponse.setContent("DONE");
             }
             catch (JsonProcessingException e) {
                 e.printStackTrace();
-                resultResponse.setPerformative(ACLMessage.FAILURE);
-                resultResponse.setContent(e.getMessage());
-            }
-            finally {
-                agent.send(resultResponse);
             }
         }
     }
