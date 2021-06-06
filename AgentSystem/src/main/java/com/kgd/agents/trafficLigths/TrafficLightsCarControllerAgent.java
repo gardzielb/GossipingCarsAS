@@ -7,7 +7,7 @@ import jade.core.Agent;
 
 import java.util.List;
 
-public class TrafficLightsCarController extends Agent {
+public class TrafficLightsCarControllerAgent extends Agent {
 
     @Override
     protected void setup() {

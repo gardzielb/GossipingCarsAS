@@ -6,6 +6,7 @@ import com.kgd.agents.fuelStation.FuelCarControllerAgent;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
 import com.kgd.agents.services.CarDataService;
 import com.kgd.agents.services.HttpCarDataService;
+import com.kgd.agents.trafficLigths.TrafficLightsCarControllerAgent;
 import com.kgd.agents.walletController.WalletController;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -54,6 +55,12 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                 // cost controller has no conflicts with other agents either
                 AgentController cost = container.createNewAgent(name + "_cost_controller", WalletController.class.getName(), null);
                 cost.start();
+
+                // no conflicts as well
+                AgentController trafficLights = container.createNewAgent(
+                        name + "_TL_controller", TrafficLightsCarControllerAgent.class.getName(), null
+                );
+                trafficLights.start();
 
                 // navigator before driver (driver will try to query navigator for route on setup)
                 AgentController nav = container.createNewAgent(name + "_route_navigator", RouteNavigatorAgent.class.getName(), routeNavArgs);
