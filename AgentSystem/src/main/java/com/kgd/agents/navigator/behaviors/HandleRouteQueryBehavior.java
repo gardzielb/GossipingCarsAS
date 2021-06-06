@@ -37,5 +37,9 @@ public class HandleRouteQueryBehavior extends CyclicBehaviour {
                 agent.send(response);
             }
         }
+        else
+        {
+            block();
+        }
     }
 }

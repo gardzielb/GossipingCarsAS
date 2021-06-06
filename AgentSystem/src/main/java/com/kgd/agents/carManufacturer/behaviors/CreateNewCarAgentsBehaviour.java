@@ -34,8 +34,14 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                     Double.toString(request.origin().y()),
                     request.destinationId(),
                     Double.toString(request.velocity()),
+                    Double.toString(request.simulationSpeed()),
             };
             Object[] routeNavArgs = Arrays.copyOf(args,3);
+
+            var fuelControllerArgs = new Object[] {
+                    Boolean.toString(request.dumb()),
+            };
+
             String name = "Car_" + carNumber;
 
             // create a sub-container
@@ -48,7 +54,7 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
             // create agents inside container
             try {
                 // fuel controller has no conflicts with other agents, can be created first
-                AgentController fuel = container.createNewAgent(name + "_fuel_controller", FuelCarControllerAgent.class.getName(), null);
+                AgentController fuel = container.createNewAgent(name + "_fuel_controller", FuelCarControllerAgent.class.getName(), fuelControllerArgs);
                 fuel.start();
 
                 // cost controller has no conflicts with other agents either

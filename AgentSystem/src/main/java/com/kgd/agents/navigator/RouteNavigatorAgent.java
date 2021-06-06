@@ -21,6 +21,8 @@ public class RouteNavigatorAgent extends Agent {
     private final RouteService routeService = new HttpRouteService();
     private Route currentRoute;
 
+
+
     @Override
     protected void setup() {
         super.setup();
@@ -44,33 +46,24 @@ public class RouteNavigatorAgent extends Agent {
         addBehaviour(new HandleRouteQueryBehavior(this));
     }
 
-    public void addWaypoints(GeoPoint[] waypoints) {
-        var name = getLocalName();
-        var destinationName = name.substring(0, name.length() - "_route_navigator".length());
-        var destinationAID = new AID(destinationName, AID.ISLOCALNAME);
+    public void addWaypoints(ACLMessage reply, GeoPoint[] waypoints) throws IOException, InterruptedException {
+        var origin = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class).position();
+        currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), waypoints);
+        System.out.println("Successfully changed route to " + currentRoute);
 
-        var message = new ACLMessage(ACLMessage.REQUEST);
-        message.addReceiver(destinationAID);
-        send(message);
+        var routeNotification = reply.createReply();
+        routeNotification.setPerformative(ACLMessage.INFORM);
+        routeNotification.setContent((new ObjectMapper()).writeValueAsString(currentRoute));
 
-        var reply = blockingReceive(MessageTemplate.MatchSender(destinationAID));
-
-        try {
-            var origin = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class).position();
-            currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), waypoints);
-            System.out.println("Successfully changed route to " + currentRoute);
-
-            var routeNotification = reply.createReply();
-            routeNotification.setPerformative(ACLMessage.INFORM);
-            routeNotification.setContent((new ObjectMapper()).writeValueAsString(currentRoute));
-
-            send(routeNotification);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        send(routeNotification);
     }
+
+
 
     public Route getCurrentRoute() {
         return currentRoute;
+    }
+    public void setCurrentRoute(Route currentRoute) {
+        this.currentRoute = currentRoute;
     }
 }

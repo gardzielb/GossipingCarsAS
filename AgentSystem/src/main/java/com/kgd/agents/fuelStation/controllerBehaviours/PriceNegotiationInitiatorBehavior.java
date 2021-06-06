@@ -3,6 +3,8 @@ package com.kgd.agents.fuelStation.controllerBehaviours;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.fuelStation.FuelCarControllerAgent;
+import com.kgd.agents.fuelStation.FuelStationData;
+import com.kgd.agents.fuelStation.OptimalFuelPriceCalculator;
 import com.kgd.agents.fuelStation.PriceSuggestion;
 import com.kgd.agents.models.geodata.GeoPoint;
 import jade.core.AID;
@@ -12,6 +14,7 @@ import jade.proto.ContractNetInitiator;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
 
@@ -20,8 +23,10 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
     private final HashMap<AID, GeoPoint> locations = new HashMap<>();
     private PriceSuggestion bestPrice;
 
-    public PriceNegotiationInitiatorBehavior(FuelCarControllerAgent agent, List<PriceSuggestion> priceSuggestions) {
+    public PriceNegotiationInitiatorBehavior(FuelCarControllerAgent agent, List<FuelStationData> stationsData) {
         super(agent, new ACLMessage(ACLMessage.CFP));
+        var priceSuggestions = OptimalFuelPriceCalculator
+                .calculateOptimalFuelPricesAsPriceSuggestion(stationsData);
         this.agent = agent;
         this.priceSuggestions.addAll(priceSuggestions);
         this.bestPrice = priceSuggestions.get(0);

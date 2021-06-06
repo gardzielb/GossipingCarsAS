@@ -25,15 +25,22 @@ import java.util.List;
 public class FuelCarControllerAgent extends Agent {
     public final double combustion = 8.0;
     public final double capacity = 20.0;
-    public double currentCapacity = capacity;
+    public double currentCapacity = 2.05;
     public boolean onRouteToStation = false;
+
+    private boolean isDumb = false;
 
     public PriceSuggestion negotiatedPrice;
 
     @Override
     protected void setup() {
         super.setup();
-
+        Object[] args = getArguments();
+        isDumb = Boolean.parseBoolean((String) args[0]);
         addBehaviour(new UpdateFuelLevelBehaviour(this));
+    }
+
+    public boolean isDumb() {
+        return isDumb;
     }
 }

@@ -2,6 +2,7 @@ package com.kgd.maps.api;
 
 import com.kgd.maps.models.CarData;
 import com.kgd.maps.repositories.CarDataRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

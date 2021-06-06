@@ -34,6 +34,7 @@ public class DriverAgent extends Agent {
 
     // velocity [km/h]
     protected double velocity = 0.0;
+    protected double simulationSpeed = 1.0;
     private String destinationId;
 
     public DecodedRoute route = null;
@@ -52,6 +53,8 @@ public class DriverAgent extends Agent {
         originY = Double.parseDouble((String) args[1]);
         destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
+        simulationSpeed = Double.parseDouble((String) args[4]);
+        velocity *= simulationSpeed;
 
         agentLocationService = new HttpAgentLocationService();
 
