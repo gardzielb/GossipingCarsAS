@@ -27,6 +27,8 @@ public class DriverAgent extends Agent {
     public int segmentFragment = 0;
     public double percent = 0.0;
 
+    public double fullDistance = 0.0;
+
     private double originX;
     private double originY;
 
@@ -64,7 +66,7 @@ public class DriverAgent extends Agent {
         time = Instant.now().toEpochMilli();
 
         addBehaviour(new CalculatePositionOnRouteBehaviour(this));
-        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 10 * 1000));
+        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 3 * 1000));
     }
 
     @Override
@@ -79,7 +81,6 @@ public class DriverAgent extends Agent {
         t.start();
     }
 
-    // get
     public double getVelocity() {
         return velocity;
     }
@@ -102,18 +103,5 @@ public class DriverAgent extends Agent {
         }
 
         return new CarLocationData(position, destinationId);
-    }
-
-    private void sendRequest(Action action) {
-
-        ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
-        request.setLanguage(new SLCodec().getName());
-        request.setOntology(MobilityOntology.getInstance().getName());
-        try {
-            getContentManager().fillContent(request, action);
-            request.addReceiver(action.getActor());
-            send(request);
-        }
-        catch (Exception ex) { ex.printStackTrace(); }
     }
 }
