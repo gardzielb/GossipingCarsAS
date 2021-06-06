@@ -66,7 +66,7 @@ public class DriverAgent extends Agent {
         time = Instant.now().toEpochMilli();
 
         addBehaviour(new CalculatePositionOnRouteBehaviour(this));
-        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 10 * 1000));
+        addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 3 * 1000));
     }
 
     @Override
