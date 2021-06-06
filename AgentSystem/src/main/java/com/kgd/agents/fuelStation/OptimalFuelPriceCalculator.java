@@ -6,7 +6,7 @@ import java.util.List;
 public class OptimalFuelPriceCalculator {
     public static List<PriceSuggestion> calculateOptimalFuelPricesAsPriceSuggestion(List<FuelStationData> stations) {
         return calculateOptimalFuelPrices(stations).stream().map(
-                station -> new PriceSuggestion(station.stationId(), (float) station.fuelPrice())
+                station -> new PriceSuggestion(station.stationId(), station.location(), (float) station.fuelPrice())
         ).toList();
     }
 
@@ -25,7 +25,7 @@ public class OptimalFuelPriceCalculator {
 
         for (var station: stations) {
             var price = o_min / Math.pow(station.routeDistance(), 0.25);
-            result.add(new FuelStationData(station.stationId(), (float) Math.min(price, station.fuelPrice()), station.routeDistance()));
+            result.add(new FuelStationData(station.stationId(), station.location(), (float) Math.min(price, station.fuelPrice()), station.routeDistance()));
         }
 
         return result;

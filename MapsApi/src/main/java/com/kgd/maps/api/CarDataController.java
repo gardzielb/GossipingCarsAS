@@ -19,6 +19,9 @@ public class CarDataController {
         this.carDataRepository = carDataRepository;
     }
 
+    @DeleteMapping("")
+    public void deleteById(@RequestParam("id") String Id) { carDataRepository.deleteById(new ObjectId(Id)); }
+
     @GetMapping("/all")
     public List<CarData> getAll() {
         return carDataRepository.findAll();
@@ -27,10 +30,5 @@ public class CarDataController {
     @PostMapping("/add")
     public CarData add(@RequestBody CarData carData) {
         return carDataRepository.insert(carData);
-    }
-
-    @DeleteMapping("/all")
-    public void deleteAll() {
-        carDataRepository.deleteAll();
     }
 }

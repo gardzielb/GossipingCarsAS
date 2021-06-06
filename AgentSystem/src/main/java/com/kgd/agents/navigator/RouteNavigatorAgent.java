@@ -3,6 +3,7 @@ package com.kgd.agents.navigator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.models.geodata.Route;
+import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.navigator.behaviors.HandleNewWaypointRequestBehavior;
 import com.kgd.agents.navigator.behaviors.HandleRouteQueryBehavior;
 import com.kgd.agents.services.HttpRouteService;
@@ -55,7 +56,7 @@ public class RouteNavigatorAgent extends Agent {
         var reply = blockingReceive(MessageTemplate.MatchSender(destinationAID));
 
         try {
-            GeoPoint origin = (new ObjectMapper()).readValue(reply.getContent(), GeoPoint.class);
+            var origin = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class).position();
             currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), waypoints);
             System.out.println("Successfully changed route to " + currentRoute);
 

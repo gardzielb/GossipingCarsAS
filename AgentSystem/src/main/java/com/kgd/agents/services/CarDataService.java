@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CarDataService {
     List<CarData> getAll();
-    void deleteAll();
+    void deleteById(String Id);
 }
