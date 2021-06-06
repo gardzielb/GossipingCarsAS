@@ -71,7 +71,7 @@ public class PrepareForNegotiationsBehaviour extends OneShotBehaviour {
                 MessageTemplate.MatchPerformative(ACLMessage.REQUEST)
         );
 
-        var reply = agent.receive(mt);
+        var reply = agent.blockingReceive(mt);
         if (reply != null) {
             try {
                 return new ObjectMapper().readValue(reply.getContent(), CarLocationData.class);
@@ -79,10 +79,6 @@ public class PrepareForNegotiationsBehaviour extends OneShotBehaviour {
             catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-        }
-        else
-        {
-            block();
         }
         throw new RuntimeException();
     }

@@ -38,7 +38,7 @@ public class DumbStationSelectionBehaviour extends OneShotBehaviour {
         message.addReceiver(new AID(name+"_route_navigator", AID.ISLOCALNAME));
         try {
             message.setContent((new ObjectMapper()).writeValueAsString(
-                    new GeoPoint[] {closestStation.location() }
+                    new GeoPoint[] { closestStation.location() }
             ));
         } catch (JsonProcessingException ignore) { }
         agent.send(message);

@@ -37,7 +37,7 @@ public class OsrmRouteFinder implements RouteFinder {
                     .newBuilder().build()
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println(response.body());
+            //System.out.println(response.body());
 
             registerRouteDeserializer(destination.id());
             return List.of(objectMapper.readValue(response.body(), Route.class));

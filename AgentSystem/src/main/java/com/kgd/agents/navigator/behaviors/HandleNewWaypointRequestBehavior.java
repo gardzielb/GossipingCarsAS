@@ -29,31 +29,14 @@ public class HandleNewWaypointRequestBehavior extends CyclicBehaviour {
         if (message != null) {
             try {
                 var waypoints = objectMapper.readValue(message.getContent(), GeoPoint[].class);
-                addWaypoints(waypoints);
+                agent.addWaypoints(waypoints);
             }
             catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void addWaypoints(GeoPoint[] waypoints) {
-        var name = agent.getLocalName();
-        var destinationName = name.substring(0, name.length() - "_route_navigator".length());
-        var destinationAID = new AID(destinationName, AID.ISLOCALNAME);
-
-        var message = new ACLMessage(ACLMessage.REQUEST);
-        message.addReceiver(destinationAID);
-        agent.send(message);
-
-        var reply = agent.receive(MessageTemplate.MatchSender(destinationAID));
-        if (reply != null) {
-            try {
-                agent.addWaypoints(reply, waypoints);
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        } else {
+        else
+        {
             block();
         }
     }
