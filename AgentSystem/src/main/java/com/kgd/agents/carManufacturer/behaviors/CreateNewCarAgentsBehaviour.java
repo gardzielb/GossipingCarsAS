@@ -26,12 +26,12 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
     protected void onTick() {
         var requests = carDataService.getAll();
 
-        for (var request: requests) {
+        for (var request : requests) {
             Object[] args = new Object[] {
                     Double.toString(request.origin().x()),
                     Double.toString(request.origin().y()),
                     request.destinationId(),
-                    Double.toString(request.velocity())
+                    Double.toString(request.velocity()),
             };
             Object[] routeNavArgs = Arrays.copyOf(args,3);
             String name = "Car_" + carNumber;
