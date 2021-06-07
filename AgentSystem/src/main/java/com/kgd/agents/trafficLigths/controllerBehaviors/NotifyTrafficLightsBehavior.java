@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.models.geodata.TrafficLights;
+import com.kgd.agents.models.geodata.Vec2;
 import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.services.EarthDistanceCalculator;
 import jade.core.AID;
@@ -60,7 +61,6 @@ public class NotifyTrafficLightsBehavior extends SimpleBehaviour {
     }
 
     private void handleTLNotification(CarLocationData carLocation) {
-        System.out.println("Car location = " + carLocation.position() + ", notificationPoint = " + notificationPoint);
         var carPosition = carLocation.position();
         double dist = EarthDistanceCalculator.distance(
                 carPosition.y(), notificationPoint.y(), carPosition.x(), notificationPoint.x()
@@ -71,9 +71,36 @@ public class NotifyTrafficLightsBehavior extends SimpleBehaviour {
 
             var notification = new ACLMessage(ACLMessage.INFORM);
             notification.addReceiver(tlAgentId);
-            notification.setContent("");
-            controllerAgent.send(notification);
+
+            var approachDir = determineApproachDirection(carPosition);
+            var serializer = new ObjectMapper();
+            try {
+                notification.setContent(serializer.writeValueAsString(approachDir));
+                controllerAgent.send(notification);
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
             isTLNotified = true;
         }
+    }
+
+    private Vec2 determineApproachDirection(GeoPoint carLocation) {
+        var carVec = new Vec2(
+                trafficLights.location().x() - carLocation.x(), trafficLights.location().y() - carLocation.y()
+        ).normalized();
+
+        for (var dirVec : trafficLights.approachDirections()) {
+            var dirVecNorm = dirVec.normalized();
+            double dotProduct = dirVecNorm.dot(carVec);
+
+            // vectors close to parallel
+            if (dotProduct > Math.cos(Math.PI / 12)) {
+                return dirVec;
+            }
+        }
+
+        return trafficLights.approachDirections()[0];
     }
 }
