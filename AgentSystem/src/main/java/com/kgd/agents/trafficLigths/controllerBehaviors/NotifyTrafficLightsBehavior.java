@@ -5,84 +5,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.models.geodata.TrafficLights;
 import com.kgd.agents.models.geodata.Vec2;
-import com.kgd.agents.models.messages.CarLocationData;
-import com.kgd.agents.services.EarthDistanceCalculator;
+import com.kgd.agents.trafficLigths.TrafficLightsCarControllerAgent;
 import jade.core.AID;
-import jade.core.Agent;
-import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
-public class NotifyTrafficLightsBehavior extends SimpleBehaviour {
+public class NotifyTrafficLightsBehavior extends OneShotBehaviour {
 
-    private final Agent controllerAgent;
+    private final TrafficLightsCarControllerAgent controllerAgent;
     private final AID tlAgentId;
     private final TrafficLights trafficLights;
-    private final GeoPoint notificationPoint;
-    private boolean isTLNotified = false;
+    private final GeoPoint carLocation;
 
-    public NotifyTrafficLightsBehavior(Agent controllerAgent, GeoPoint notificationPoint, TrafficLights trafficLights,
-                                       AID tlAgentId) {
+    public NotifyTrafficLightsBehavior(TrafficLightsCarControllerAgent controllerAgent, GeoPoint carLocation,
+                                       TrafficLights trafficLights, AID tlAgentId) {
         this.controllerAgent = controllerAgent;
         this.tlAgentId = tlAgentId;
         this.trafficLights = trafficLights;
-        this.notificationPoint = notificationPoint;
+        this.carLocation = carLocation;
     }
 
     @Override
     public void action() {
-        String agentName = controllerAgent.getLocalName();
-        String carName = agentName.substring(0, agentName.length() - "_TL_controller".length());
-        var destinationAID = new AID(carName, AID.ISLOCALNAME);
+        System.out.println("Notifying Traffic Lights");
 
-        var message = new ACLMessage(ACLMessage.REQUEST);
-        message.addReceiver(destinationAID);
-        controllerAgent.send(message);
+        var notification = new ACLMessage(ACLMessage.INFORM);
+        notification.addReceiver(tlAgentId);
 
-        var reply = controllerAgent.receive(MessageTemplate.MatchSender(destinationAID));
-        if (reply != null) {
-            try {
-                var carLocation = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class);
-                handleTLNotification(carLocation);
-            }
-            catch (JsonProcessingException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
+        var approachDir = determineApproachDirection(carLocation);
+        var serializer = new ObjectMapper();
+        try {
+            notification.setContent(serializer.writeValueAsString(approachDir));
+            controllerAgent.send(notification);
+            controllerAgent.approachTrafficLights(trafficLights, approachDir);
         }
-        else {
-            block();
-        }
-    }
-
-    @Override
-    public boolean done() {
-        return isTLNotified;
-    }
-
-    private void handleTLNotification(CarLocationData carLocation) {
-        var carPosition = carLocation.position();
-        double dist = EarthDistanceCalculator.distance(
-                carPosition.y(), notificationPoint.y(), carPosition.x(), notificationPoint.x()
-        );
-
-        if (dist < 0.1) {
-            System.out.println("Notifying Traffic Lights");
-
-            var notification = new ACLMessage(ACLMessage.INFORM);
-            notification.addReceiver(tlAgentId);
-
-            var approachDir = determineApproachDirection(carPosition);
-            var serializer = new ObjectMapper();
-            try {
-                notification.setContent(serializer.writeValueAsString(approachDir));
-                controllerAgent.send(notification);
-            }
-            catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-
-            isTLNotified = true;
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 

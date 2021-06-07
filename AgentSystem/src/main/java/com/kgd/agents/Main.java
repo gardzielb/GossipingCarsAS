@@ -1,10 +1,11 @@
 package com.kgd.agents;
 
 import com.google.maps.model.PlaceType;
-import com.kgd.agents.carManufacturer.CarManufacturerAgent;
+import com.kgd.agents.models.geodata.Vec2;
 import com.kgd.agents.services.HttpPlaceService;
 import com.kgd.agents.services.HttpTrafficLightsService;
 import com.kgd.agents.services.PlaceService;
+import com.kgd.agents.trafficLigths.TrafficLightSignalerAgent;
 import com.kgd.agents.trafficLigths.TrafficLightsManagerAgent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -15,6 +16,7 @@ import jade.wrapper.StaleProxyException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args)
@@ -53,10 +55,20 @@ public class Main {
         var tlService = new HttpTrafficLightsService();
 
         for (var tl : tlService.findAll()) {
-            var agentController = tlContainer.createNewAgent(
-                    tl.id(), TrafficLightsManagerAgent.class.getName(), new Object[]{tl}
+            var managerAgent = tlContainer.createNewAgent(
+                    tl.id() + "_manager", TrafficLightsManagerAgent.class.getName(), new Object[]{tl}
             );
-            agentController.start();
+            managerAgent.start();
+
+            var isGreenMap = new HashMap<Vec2, Boolean>();
+            for (Vec2 dir : tl.approachDirections()) {
+                isGreenMap.put(dir, false);
+            }
+
+            var signalerAgent = tlContainer.createNewAgent(
+                    tl.id() + "_signaler", TrafficLightSignalerAgent.class.getName(), new Object[]{tl, isGreenMap}
+            );
+            signalerAgent.start();
         }
     }
 }

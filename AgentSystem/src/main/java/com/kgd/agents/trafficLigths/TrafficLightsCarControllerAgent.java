@@ -1,10 +1,9 @@
 package com.kgd.agents.trafficLigths;
 
-import com.kgd.agents.models.geodata.DecodedRoute;
-import com.kgd.agents.models.geodata.GeoPoint;
-import com.kgd.agents.models.geodata.Route;
-import com.kgd.agents.models.geodata.TrafficLights;
+import com.kgd.agents.models.geodata.*;
 import com.kgd.agents.services.EarthDistanceCalculator;
+import com.kgd.agents.trafficLigths.controllerBehaviors.ApproachTrafficLightsBehavior;
+import com.kgd.agents.trafficLigths.controllerBehaviors.DriveToPointBehavior;
 import com.kgd.agents.trafficLigths.controllerBehaviors.NotifyTrafficLightsBehavior;
 import com.kgd.agents.trafficLigths.controllerBehaviors.UpdateTrafficLightsQueueBehavior;
 import jade.core.Agent;
@@ -76,16 +75,42 @@ public class TrafficLightsCarControllerAgent extends Agent {
 
         var agentDescription = new DFAgentDescription();
         var serviceDescription = new ServiceDescription();
-        serviceDescription.setName(trafficLightsData.trafficLights().id());
-        serviceDescription.setType("trafficLights");
+        serviceDescription.setName(trafficLightsData.trafficLights().id() + "_manager");
+        serviceDescription.setType("trafficLightsManager");
         agentDescription.addServices(serviceDescription);
 
         try {
             var tlAgents = DFService.search(this, agentDescription);
-            currentTLInteractionBehavior = new NotifyTrafficLightsBehavior(
+            var notifyTlBehavior = new NotifyTrafficLightsBehavior(
                     this, trafficLightsData.notificationPoint(), trafficLightsData.trafficLights(),
                     tlAgents[0].getName()
             );
+            currentTLInteractionBehavior = new DriveToPointBehavior(
+                    this, trafficLightsData.notificationPoint(), notifyTlBehavior
+            );
+            addBehaviour(currentTLInteractionBehavior);
+        }
+        catch (FIPAException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setTlInteractionBehavior(Behaviour behavior) {
+        currentTLInteractionBehavior = behavior;
+        addBehaviour(currentTLInteractionBehavior);
+    }
+
+    public void approachTrafficLights(TrafficLights trafficLights, Vec2 direction) {
+        var agentDescription = new DFAgentDescription();
+        var serviceDescription = new ServiceDescription();
+        serviceDescription.setName(trafficLights.id() + "_signaler");
+        serviceDescription.setType("trafficLightsSignaler");
+        agentDescription.addServices(serviceDescription);
+
+        try {
+            var tlAgents = DFService.search(this, agentDescription);
+            var approachTlBehavior = new ApproachTrafficLightsBehavior(this, tlAgents[0].getName(), direction);
+            currentTLInteractionBehavior = new DriveToPointBehavior(this, trafficLights.location(), approachTlBehavior);
             addBehaviour(currentTLInteractionBehavior);
         }
         catch (FIPAException e) {

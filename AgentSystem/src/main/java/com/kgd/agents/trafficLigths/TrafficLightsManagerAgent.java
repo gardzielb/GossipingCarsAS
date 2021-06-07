@@ -30,8 +30,8 @@ public class TrafficLightsManagerAgent extends Agent {
         var agentDescription = new DFAgentDescription();
         agentDescription.setName(getAID());
         var serviceDescription = new ServiceDescription();
-        serviceDescription.setType("trafficLights");
-        serviceDescription.setName(trafficLights.id());
+        serviceDescription.setType("trafficLightsManager");
+        serviceDescription.setName(trafficLights.id() + "_manager");
         agentDescription.addServices(serviceDescription);
 
         try {
