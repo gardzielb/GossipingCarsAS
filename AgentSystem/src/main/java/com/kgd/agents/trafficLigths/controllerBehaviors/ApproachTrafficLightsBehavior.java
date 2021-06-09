@@ -17,6 +17,7 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
     private final ObjectMapper deserializer = new ObjectMapper();
 
     private boolean canPassTL = false;
+    private boolean isAsking = true;
     private boolean isCarStopped = false;
 
     public ApproachTrafficLightsBehavior(TrafficLightsCarControllerAgent controllerAgent, AID tlSignalerId) {
@@ -26,46 +27,44 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 
     @Override
     public void action() {
-        System.out.println("Asking light signaler if passage possible");
 
-        var canPassQuery = new ACLMessage(ACLMessage.QUERY_IF);
-        canPassQuery.addReceiver(tlSignalerId);
-        try {
+        if (isAsking) {
+            System.out.println("Asking light signaler if passage possible");
+            var canPassQuery = new ACLMessage(ACLMessage.QUERY_IF);
+            canPassQuery.addReceiver(tlSignalerId);
             controllerAgent.send(canPassQuery);
+            isAsking = false;
+        }
 
-            var msgTemplate = MessageTemplate.or(
-                    MessageTemplate.MatchPerformative(ACLMessage.AGREE),
-                    MessageTemplate.MatchPerformative(ACLMessage.REFUSE)
-            );
-            var canPassResponse = controllerAgent.receive(msgTemplate);
+        var msgTemplate = MessageTemplate.or(
+                MessageTemplate.MatchPerformative(ACLMessage.AGREE),
+                MessageTemplate.MatchPerformative(ACLMessage.REFUSE)
+        );
+        var canPassResponse = controllerAgent.receive(msgTemplate);
 
-            if (canPassResponse != null) {
-                if (canPassResponse.getPerformative() == ACLMessage.AGREE) {
-                    System.out.println("Signaler allowed me to pass");
-
-                    if (canPassResponse.getContent().isBlank()) {
-                        controllerAgent.prepareForNextTrafficLights();
-                    }
-                    else {
-                        var exitData = deserializer.readValue(canPassResponse.getContent(), TrafficLightExitData.class);
-                        controllerAgent.passBetweenTrafficLights(
-                                new AID(exitData.agentName(), AID.ISLOCALNAME), exitData.exitPoint()
-                        );
-                    }
-
+        if (canPassResponse != null) {
+            if (canPassResponse.getPerformative() == ACLMessage.AGREE) {
+                System.out.println("Signaler allowed me to pass");
+                try {
+                    var exitData = deserializer.readValue(canPassResponse.getContent(), TrafficLightExitData.class);
+                    controllerAgent.passBetweenTrafficLights(
+                            new AID(exitData.agentName(), AID.ISLOCALNAME), exitData.exitPoint()
+                    );
                     canPassTL = true;
                 }
-                else if (!isCarStopped) {
-                    System.out.println("Stopping the car");
-                    isCarStopped = true;
+                catch (JsonProcessingException e) {
+                    throw new RuntimeException(e.getMessage());
                 }
             }
-            else {
-                block();
+            else if (!isCarStopped) {
+                System.out.println("Stopping the car");
+                isCarStopped = true;
             }
+
+            isAsking = canPassResponse.getPerformative() == ACLMessage.REFUSE;
         }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
+        else {
+            block();
         }
     }
 

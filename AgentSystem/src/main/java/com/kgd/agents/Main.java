@@ -1,6 +1,8 @@
 package com.kgd.agents;
 
 import com.google.maps.model.PlaceType;
+import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.TrafficLights;
 import com.kgd.agents.services.HttpPlaceService;
 import com.kgd.agents.services.HttpTrafficLightsService;
 import com.kgd.agents.services.PlaceService;
@@ -53,21 +55,31 @@ public class Main {
         var tlService = new HttpTrafficLightsService();
 
         for (var tlSystem : tlService.findAllSystems()) {
+            String managerName = tlSystem.id() + "_manager";
             var managerAgent = tlContainer.createNewAgent(
-                    tlSystem.id() + "_manager", TrafficLightsManagerAgent.class.getName(),
+                    managerName, TrafficLightsManagerAgent.class.getName(),
                     new Object[]{tlSystem.physicalLights()[0].id(), tlSystem.physicalLights()[1].id()}
             );
             managerAgent.start();
 
-            boolean[] isGreen = new boolean[]{true, false};
-            for (int i = 0; i < tlSystem.physicalLights().length; i++) {
-                var tl = tlSystem.physicalLights()[i];
-                var signalerAgent = tlContainer.createNewAgent(
-                        tl.id(), TrafficLightSignalerAgent.class.getName(),
-                        new Object[]{tl, isGreen[i]}
-                );
-                signalerAgent.start();
-            }
+            startTLSignaler(
+                    tlContainer, tlSystem.physicalLights()[0], true, managerName,
+                    tlSystem.physicalLights()[1].location()
+            );
+            startTLSignaler(
+                    tlContainer, tlSystem.physicalLights()[1], false, managerName,
+                    tlSystem.physicalLights()[0].location()
+            );
         }
+    }
+
+    private static void startTLSignaler(AgentContainer container, TrafficLights lights, boolean isGreen,
+                                        String managerName, GeoPoint exitPoint) throws StaleProxyException {
+        var signaler = container.createNewAgent(
+                lights.id(), TrafficLightSignalerAgent.class.getName(),
+                new Object[]{lights, isGreen, exitPoint, managerName}
+        );
+        signaler.start();
+
     }
 }

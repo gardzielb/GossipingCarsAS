@@ -1,5 +1,6 @@
 package com.kgd.agents.trafficLigths;
 
+import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.models.geodata.TrafficLights;
 import com.kgd.agents.trafficLigths.signalerBehaviors.ChangeLightColorBehavior;
 import com.kgd.agents.trafficLigths.signalerBehaviors.SignalTrafficLightColorBehavior;
@@ -19,16 +20,17 @@ public class TrafficLightSignalerAgent extends Agent {
         super.setup();
 
         var args = getArguments();
-        if (args == null || args.length < 1)
+        if (args == null || args.length < 4)
             throw new RuntimeException("Traffic lights object is needed by Signaler agent");
 
         trafficLights = (TrafficLights) args[0];
+        isGreen = (boolean) args[1];
+        var exitPoint = (GeoPoint) args[2];
+        var exitControllerName = args[3].toString();
+
         registerInDF();
 
-        if (args.length >= 2)
-            isGreen = (boolean) args[1];
-
-        addBehaviour(new SignalTrafficLightColorBehavior(this));
+        addBehaviour(new SignalTrafficLightColorBehavior(this, exitPoint, exitControllerName));
         addBehaviour(new ChangeLightColorBehavior(this));
     }
 
@@ -38,7 +40,7 @@ public class TrafficLightSignalerAgent extends Agent {
 
     public void changeLight() {
         isGreen = !isGreen;
-        System.out.println(getLocalName() + ": " + (isGreen ? "GREEN" : "RED"));
+//        System.out.println(getLocalName() + ": " + (isGreen ? "GREEN" : "RED"));
     }
 
     private void registerInDF() {

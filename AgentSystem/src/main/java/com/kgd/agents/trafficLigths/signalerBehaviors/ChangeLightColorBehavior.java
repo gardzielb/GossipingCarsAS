@@ -20,7 +20,6 @@ public class ChangeLightColorBehavior extends CyclicBehaviour {
 
         if (changeColorRequest != null) {
             agent.changeLight();
-            System.out.println(agent.getLocalName() + " changed light color");
         }
         else {
             block();
