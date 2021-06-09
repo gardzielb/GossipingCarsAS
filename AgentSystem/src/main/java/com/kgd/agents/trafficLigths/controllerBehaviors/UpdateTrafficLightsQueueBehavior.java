@@ -27,8 +27,7 @@ public class UpdateTrafficLightsQueueBehavior extends CyclicBehaviour {
         if (routeMessage != null) {
             try {
                 var route = objectMapper.readValue(routeMessage.getContent(), Route.class);
-//            var trafficLights = lightsService.findAllByRouteTag(route.tag());
-                var trafficLights = lightsService.findAll();
+                var trafficLights = lightsService.findAllByRouteTag(route.tag());
                 agent.updateLightsQueue(route, trafficLights);
             }
             catch (IOException | InterruptedException e) {

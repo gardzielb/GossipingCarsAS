@@ -9,6 +9,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public record TrafficLights(
 		@JsonProperty("id") ObjectId id,
 		@JsonProperty("location") Point location,
-		@JsonProperty("approachDirections") Point[] approachDirections,
 		@JsonProperty("routeTags") String[] routeTags
 ) {}

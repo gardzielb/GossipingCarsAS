@@ -1,8 +1,5 @@
-package com.kgd.agents.trafficLigths.managerBehaviors;
+package com.kgd.agents.trafficLigths.signalerBehaviors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kgd.agents.models.geodata.Vec2;
 import com.kgd.agents.trafficLigths.TrafficLightSignalerAgent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -11,10 +8,16 @@ import jade.lang.acl.MessageTemplate;
 public class SignalTrafficLightColorBehavior extends CyclicBehaviour {
 
     private final TrafficLightSignalerAgent agent;
-    private final ObjectMapper deserializer = new ObjectMapper();
+    private final String exitControllerName;
 
     public SignalTrafficLightColorBehavior(TrafficLightSignalerAgent agent) {
         this.agent = agent;
+        this.exitControllerName = "";
+    }
+
+    public SignalTrafficLightColorBehavior(TrafficLightSignalerAgent agent, String exitControllerName) {
+        this.agent = agent;
+        this.exitControllerName = exitControllerName;
     }
 
     @Override
@@ -26,17 +29,12 @@ public class SignalTrafficLightColorBehavior extends CyclicBehaviour {
             System.out.println("Received query from " + isGreenQuery.getSender().getLocalName());
 
             var reply = isGreenQuery.createReply();
-
-            var dirJson = isGreenQuery.getContent();
-            try {
-                var dirVec = deserializer.readValue(dirJson, Vec2.class);
-                reply.setPerformative(ACLMessage.INFORM_IF);
-                reply.setContent(agent.isGreen(dirVec) ? "true" : "false");
+            if (agent.isGreen()) {
+                reply.setPerformative(ACLMessage.AGREE);
+                reply.setContent(exitControllerName);
             }
-            catch (JsonProcessingException e) {
-                e.printStackTrace();
-                reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-                reply.setContent(e.getMessage());
+            else {
+                reply.setPerformative(ACLMessage.REFUSE);
             }
 
             agent.send(reply);

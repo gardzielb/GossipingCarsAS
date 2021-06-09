@@ -2,10 +2,8 @@ package com.kgd.agents.trafficLigths;
 
 import com.kgd.agents.models.geodata.*;
 import com.kgd.agents.services.EarthDistanceCalculator;
-import com.kgd.agents.trafficLigths.controllerBehaviors.ApproachTrafficLightsBehavior;
-import com.kgd.agents.trafficLigths.controllerBehaviors.DriveToPointBehavior;
-import com.kgd.agents.trafficLigths.controllerBehaviors.NotifyTrafficLightsBehavior;
-import com.kgd.agents.trafficLigths.controllerBehaviors.UpdateTrafficLightsQueueBehavior;
+import com.kgd.agents.trafficLigths.controllerBehaviors.*;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
@@ -14,6 +12,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -50,19 +49,23 @@ public class TrafficLightsCarControllerAgent extends Agent {
         var decodedRoute = new DecodedRoute(route);
         double HIT_RADIUS_KM = 0.1;
 
-        for (var segment : decodedRoute.segments) {
-            for (int i = 0; i < segment.route.size(); i++) {
-                var routePoint = segment.route.get(i);
+        var fullPolyline = decodedRoute.segments.stream().map(seg -> seg.route).reduce(
+                new ArrayList<>(), (prevList, segRoute) -> {
+                    prevList.addAll(segRoute);
+                    return prevList;
+                }
+        );
 
-                for (var tl : trafficLights) {
-                    double distance = EarthDistanceCalculator.distance(
-                            routePoint.y(), tl.location().y(), routePoint.x(), tl.location().x()
-                    );
-                    if (distance < HIT_RADIUS_KM) {
-                        var notificationPoint = findNotificationPoint(segment.route, i);
-                        trafficLightsQueue.add(new TrafficLightsData(tl, notificationPoint));
-                        break;
-                    }
+        for (var tl : trafficLights) {
+            for (int i = 0; i < fullPolyline.size(); i++) {
+                var routePoint = fullPolyline.get(i);
+                double distance = EarthDistanceCalculator.distance(
+                        routePoint.y(), tl.location().y(), routePoint.x(), tl.location().x()
+                );
+                if (distance < HIT_RADIUS_KM) {
+                    var notificationPoint = findNotificationPoint(fullPolyline, i);
+                    trafficLightsQueue.add(new TrafficLightsData(tl, notificationPoint));
+                    break;
                 }
             }
         }
@@ -71,7 +74,13 @@ public class TrafficLightsCarControllerAgent extends Agent {
     }
 
     public void prepareForNextTrafficLights() {
+        if (trafficLightsQueue.isEmpty())
+            return;
+
+        System.out.println("Next TL ahead of me");
+
         var trafficLightsData = trafficLightsQueue.remove();
+        System.out.println(trafficLightsData);
 
         var agentDescription = new DFAgentDescription();
         var serviceDescription = new ServiceDescription();
@@ -82,8 +91,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
         try {
             var tlAgents = DFService.search(this, agentDescription);
             var notifyTlBehavior = new NotifyTrafficLightsBehavior(
-                    this, trafficLightsData.notificationPoint(), trafficLightsData.trafficLights(),
-                    tlAgents[0].getName()
+                    this, trafficLightsData.trafficLights(), tlAgents[0].getName()
             );
             currentTLInteractionBehavior = new DriveToPointBehavior(
                     this, trafficLightsData.notificationPoint(), notifyTlBehavior
@@ -100,7 +108,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
         addBehaviour(currentTLInteractionBehavior);
     }
 
-    public void approachTrafficLights(TrafficLights trafficLights, Vec2 direction) {
+    public void approachTrafficLights(TrafficLights trafficLights) {
         var agentDescription = new DFAgentDescription();
         var serviceDescription = new ServiceDescription();
         serviceDescription.setName(trafficLights.id() + "_signaler");
@@ -109,13 +117,20 @@ public class TrafficLightsCarControllerAgent extends Agent {
 
         try {
             var tlAgents = DFService.search(this, agentDescription);
-            var approachTlBehavior = new ApproachTrafficLightsBehavior(this, tlAgents[0].getName(), direction);
-            currentTLInteractionBehavior = new DriveToPointBehavior(this, trafficLights.location(), approachTlBehavior);
+            var approachTlBehavior = new ApproachTrafficLightsBehavior(this, tlAgents[0].getName());
+            currentTLInteractionBehavior = new DriveToPointBehavior(
+                    this, trafficLights.location(), approachTlBehavior);
             addBehaviour(currentTLInteractionBehavior);
         }
         catch (FIPAException e) {
             e.printStackTrace();
         }
+    }
+
+    public void passBetweenTrafficLights(AID tlAgent, GeoPoint exitPoint) {
+        var exitTlBehavior = new ExitTrafficLightsBehavior(this, tlAgent);
+        currentTLInteractionBehavior = new DriveToPointBehavior(this, exitPoint, exitTlBehavior);
+        addBehaviour(currentTLInteractionBehavior);
     }
 
     private GeoPoint findNotificationPoint(List<GeoPoint> routePoints, int tlLocationIndex) {

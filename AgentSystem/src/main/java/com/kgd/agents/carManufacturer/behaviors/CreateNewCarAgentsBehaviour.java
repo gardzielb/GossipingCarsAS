@@ -15,8 +15,6 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
-import java.util.Arrays;
-
 public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
     private static int carNumber = 0;
     private final CarDataService carDataService = new HttpCarDataService();
@@ -34,9 +32,9 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                     Double.toString(request.origin().x()),
                     Double.toString(request.origin().y()),
                     request.destinationId(),
-                    Double.toString(request.velocity())
+                    Double.toString(request.velocity()),
+                    request.routeTag()
             };
-            Object[] routeNavArgs = Arrays.copyOf(args,3);
             String name = "Car_" + carNumber;
 
             // create a sub-container
@@ -64,7 +62,10 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                 trafficLights.start();
 
                 // navigator before driver (driver will try to query navigator for route on setup)
-                AgentController nav = container.createNewAgent(name + "_route_navigator", RouteNavigatorAgent.class.getName(), routeNavArgs);
+                AgentController nav = container.createNewAgent(
+                        name + "_route_navigator", RouteNavigatorAgent.class.getName(),
+                        new Object[]{args[0], args[1], args[2], args[4]}
+                );
                 nav.start();
 
                 AgentController driver = container.createNewAgent(name, DriverAgent.class.getName(), args);

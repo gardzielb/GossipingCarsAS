@@ -11,4 +11,10 @@ public interface RouteService {
     Route findRoute(GeoPoint origin, String destId) throws URISyntaxException, IOException, InterruptedException;
 
     Route findRoute(GeoPoint origin, String destId, GeoPoint[] waypoints) throws IOException, InterruptedException;
+
+    Route findRoute(GeoPoint origin, String destId, String routeTag)
+            throws URISyntaxException, IOException, InterruptedException;
+
+    Route findRoute(GeoPoint origin, String destId, String routeTag, GeoPoint[] waypoints)
+            throws IOException, InterruptedException;
 }

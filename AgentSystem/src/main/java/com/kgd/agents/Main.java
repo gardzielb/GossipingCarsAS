@@ -1,7 +1,6 @@
 package com.kgd.agents;
 
 import com.google.maps.model.PlaceType;
-import com.kgd.agents.models.geodata.Vec2;
 import com.kgd.agents.services.HttpPlaceService;
 import com.kgd.agents.services.HttpTrafficLightsService;
 import com.kgd.agents.services.PlaceService;
@@ -16,7 +15,6 @@ import jade.wrapper.StaleProxyException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args)
@@ -60,13 +58,13 @@ public class Main {
             );
             managerAgent.start();
 
-            var isGreenMap = new HashMap<Vec2, Boolean>();
-            for (Vec2 dir : tl.approachDirections()) {
-                isGreenMap.put(dir, false);
-            }
+//            var isGreenMap = new HashMap<Vec2, Boolean>();
+//            for (Vec2 dir : tl.approachDirections()) {
+//                isGreenMap.put(dir, false);
+//            }
 
             var signalerAgent = tlContainer.createNewAgent(
-                    tl.id() + "_signaler", TrafficLightSignalerAgent.class.getName(), new Object[]{tl, isGreenMap}
+                    tl.id() + "_signaler", TrafficLightSignalerAgent.class.getName(), new Object[]{tl, true}
             );
             signalerAgent.start();
         }

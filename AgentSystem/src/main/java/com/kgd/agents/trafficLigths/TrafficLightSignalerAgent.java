@@ -1,20 +1,17 @@
 package com.kgd.agents.trafficLigths;
 
 import com.kgd.agents.models.geodata.TrafficLights;
-import com.kgd.agents.models.geodata.Vec2;
-import com.kgd.agents.trafficLigths.managerBehaviors.ChangeLightColorBehavior;
-import com.kgd.agents.trafficLigths.managerBehaviors.SignalTrafficLightColorBehavior;
+import com.kgd.agents.trafficLigths.signalerBehaviors.ChangeLightColorBehavior;
+import com.kgd.agents.trafficLigths.signalerBehaviors.SignalTrafficLightColorBehavior;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
-import java.util.Map;
-
 public class TrafficLightSignalerAgent extends Agent {
 
-    private Map<Vec2, Boolean> isGreenMap;
+    private boolean isGreen = false;
     private TrafficLights trafficLights;
 
     @Override
@@ -22,25 +19,25 @@ public class TrafficLightSignalerAgent extends Agent {
         super.setup();
 
         var args = getArguments();
-        if (args == null || args.length < 2)
+        if (args == null || args.length < 1)
             throw new RuntimeException("Traffic lights object is needed by Signaler agent");
 
         trafficLights = (TrafficLights) args[0];
         registerInDF();
 
-        isGreenMap = (Map<Vec2, Boolean>) args[1];
+        if (args.length >= 2)
+            isGreen = (boolean) args[1];
 
         addBehaviour(new SignalTrafficLightColorBehavior(this));
         addBehaviour(new ChangeLightColorBehavior(this));
     }
 
-    public boolean isGreen(Vec2 direction) {
-        return isGreenMap.get(direction);
+    public boolean isGreen() {
+        return isGreen;
     }
 
-    public void changeLight(Vec2 direction) {
-        boolean isGreen = isGreenMap.get(direction);
-        isGreenMap.replace(direction, !isGreen);
+    public void changeLight() {
+        isGreen = !isGreen;
     }
 
     private void registerInDF() {

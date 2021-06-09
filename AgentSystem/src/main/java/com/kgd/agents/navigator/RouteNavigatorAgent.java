@@ -26,14 +26,15 @@ public class RouteNavigatorAgent extends Agent {
         super.setup();
 
         Object[] args = getArguments();
-        if (args == null || args.length < 3)
-            throw new IllegalStateException("Expected origin and destination as arguments");
+        if (args == null || args.length < 4)
+            throw new IllegalStateException("Expected origin, destination and route tag as arguments");
 
         var origin = new GeoPoint(Double.parseDouble((String) args[0]), Double.parseDouble((String) args[1]));
         var destinationId = (String) args[2];
+        var routeTag = (String) args[3];
 
         try {
-            currentRoute = routeService.findRoute(origin, destinationId);
+            currentRoute = routeService.findRoute(origin, destinationId, routeTag);
         }
         catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
@@ -57,7 +58,7 @@ public class RouteNavigatorAgent extends Agent {
 
         try {
             var origin = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class).position();
-            currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), waypoints);
+            currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), currentRoute.tag(), waypoints);
             System.out.println("Successfully changed route to " + currentRoute);
 
             var routeNotification = reply.createReply();
@@ -65,7 +66,8 @@ public class RouteNavigatorAgent extends Agent {
             routeNotification.setContent((new ObjectMapper()).writeValueAsString(currentRoute));
 
             send(routeNotification);
-        } catch (IOException | InterruptedException e) {
+        }
+        catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
