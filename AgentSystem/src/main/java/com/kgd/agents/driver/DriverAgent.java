@@ -1,9 +1,6 @@
 package com.kgd.agents.driver;
 
-import com.kgd.agents.driver.behaviors.CalculatePositionOnRouteBehaviour;
-import com.kgd.agents.driver.behaviors.NewRouteReceivedBehaviour;
-import com.kgd.agents.driver.behaviors.RequestPositionBehaviour;
-import com.kgd.agents.driver.behaviors.UpdatePositionInDatabaseBehaviour;
+import com.kgd.agents.driver.behaviors.*;
 import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.models.geodata.DecodedRoute;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
@@ -14,6 +11,7 @@ import jade.content.lang.sl.SLCodec;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.domain.mobility.MobilityOntology;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.ControllerException;
@@ -28,13 +26,17 @@ public class DriverAgent extends Agent {
     public double percent = 0.0;
 
     public double fullDistance = 0.0;
+    public Behaviour calcPositionBehaviour;
 
     private double originX;
     private double originY;
 
     // velocity [km/h]
     protected double velocity = 0.0;
+    protected double simulationSpeed = 1.0;
     private String destinationId;
+
+
 
     public DecodedRoute route = null;
 
@@ -52,6 +54,8 @@ public class DriverAgent extends Agent {
         originY = Double.parseDouble((String) args[1]);
         destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
+        simulationSpeed = Double.parseDouble((String) args[4]);
+        velocity *= simulationSpeed;
 
         agentLocationService = new HttpAgentLocationService();
 
@@ -63,10 +67,10 @@ public class DriverAgent extends Agent {
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
         send(message);
 
-        time = Instant.now().toEpochMilli();
-
-        addBehaviour(new CalculatePositionOnRouteBehaviour(this));
+        calcPositionBehaviour = new CalculatePositionOnRouteBehaviour(this);
+        addBehaviour(calcPositionBehaviour);
         addBehaviour(new UpdatePositionInDatabaseBehaviour(this, 3 * 1000));
+        addBehaviour(new StartStopBehavior(this));
     }
 
     @Override

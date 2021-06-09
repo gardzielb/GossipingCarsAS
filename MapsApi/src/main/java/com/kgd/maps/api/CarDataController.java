@@ -6,7 +6,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -30,5 +29,15 @@ public class CarDataController {
     @PostMapping("/add")
     public CarData add(@RequestBody CarData carData) {
         return carDataRepository.insert(carData);
+    }
+
+    @PostMapping("/add_multiple")
+    public List<CarData> addMultiple(@RequestBody List<CarData> datas) {
+        return carDataRepository.insert(datas);
+    }
+
+    @DeleteMapping("/all")
+    public void deleteAll() {
+        carDataRepository.deleteAll();
     }
 }

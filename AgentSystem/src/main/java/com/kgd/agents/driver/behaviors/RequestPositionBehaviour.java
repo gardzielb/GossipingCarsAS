@@ -19,17 +19,21 @@ public class RequestPositionBehaviour extends CyclicBehaviour {
         MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
         var message = agent.receive(mt);
 
-        if (message == null) return;
+        if (message != null) {
+            var locationData = agent.getLocationInfo();
+            var reply = message.createReply();
 
-        var locationData = agent.getLocationInfo();
-        var reply = message.createReply();
+            try {
+                reply.setContent((new ObjectMapper()).writeValueAsString(locationData));
+            } catch (JsonProcessingException e) {
+                reply.setContent(null);
+            }
 
-        try {
-            reply.setContent((new ObjectMapper()).writeValueAsString(locationData));
-        } catch (JsonProcessingException e) {
-            reply.setContent(null);
+            agent.send(reply);
+        }
+        else {
+            block();
         }
 
-        agent.send(reply);
     }
 }
