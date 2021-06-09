@@ -1,6 +1,6 @@
 package com.kgd.agents.trafficLigths;
 
-import com.kgd.agents.models.geodata.TrafficLights;
+import com.kgd.agents.trafficLigths.managerBehaviors.ControlTrafficLightsColorBehavior;
 import com.kgd.agents.trafficLigths.managerBehaviors.ReceiveApproachNotificationsBehavior;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -10,29 +10,33 @@ import jade.domain.FIPAException;
 
 public class TrafficLightsManagerAgent extends Agent {
 
-    private TrafficLights trafficLights;
+    private String[] trafficLightIds;
 
     @Override
     protected void setup() {
         super.setup();
 
         var args = getArguments();
-        if (args == null || args.length == 0)
+        if (args == null || args.length < 2)
             throw new IllegalArgumentException("TrafficLightsManager should be passed traffic lights object!");
 
-        trafficLights = (TrafficLights) args[0];
+        trafficLightIds = new String[]{args[0].toString(), args[1].toString()};
         registerInDF();
 
         addBehaviour(new ReceiveApproachNotificationsBehavior(this));
+        addBehaviour(new ControlTrafficLightsColorBehavior(this, 3000, 5000, trafficLightIds));
     }
 
     private void registerInDF() {
         var agentDescription = new DFAgentDescription();
         agentDescription.setName(getAID());
-        var serviceDescription = new ServiceDescription();
-        serviceDescription.setType("trafficLightsManager");
-        serviceDescription.setName(trafficLights.id() + "_manager");
-        agentDescription.addServices(serviceDescription);
+
+        for (String lightId : trafficLightIds) {
+            var serviceDescription = new ServiceDescription();
+            serviceDescription.setType("trafficLightsManager");
+            serviceDescription.setName(lightId + "_manager");
+            agentDescription.addServices(serviceDescription);
+        }
 
         try {
             DFService.register(this, agentDescription);

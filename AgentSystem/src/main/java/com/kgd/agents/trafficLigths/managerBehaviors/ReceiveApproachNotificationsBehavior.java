@@ -16,11 +16,14 @@ public class ReceiveApproachNotificationsBehavior extends CyclicBehaviour {
     @Override
     public void action() {
         var msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-        var notification = managerAgent.blockingReceive(msgTemplate);
+        var notification = managerAgent.receive(msgTemplate);
 
         if (notification != null) {
             var approachedLightsId = notification.getContent();
             System.out.println(notification.getSender().getLocalName() + " is coming to lights " + approachedLightsId);
+        }
+        else {
+            block();
         }
     }
 }

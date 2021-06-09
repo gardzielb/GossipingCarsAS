@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "trafficLightSystems")
 public record TrafficLightSystem(
-        @JsonIgnore ObjectId id,
+        @JsonProperty("id") ObjectId id,
         @JsonProperty("physicalLights") ObjectId[] physicalLights
 ) {}

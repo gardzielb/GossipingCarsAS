@@ -1,13 +1,16 @@
 package com.kgd.maps.api;
 
 import com.kgd.maps.models.TrafficLightSystem;
+import com.kgd.maps.models.TrafficLightSystemWithLights;
 import com.kgd.maps.models.TrafficLights;
 import com.kgd.maps.repositories.TrafficLightSystemRepository;
 import com.kgd.maps.repositories.TrafficLightsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lights")
@@ -33,8 +36,16 @@ public class TrafficLightsController {
     }
 
     @GetMapping("/systems/all")
-    public List<TrafficLightSystem> getAllSystems() {
-        return lightSystemRepository.findAll();
+    public List<TrafficLightSystemWithLights> getAllSystems() {
+        return lightSystemRepository.findAll().stream().map(
+                system -> {
+                    var lights = new ArrayList<TrafficLights>();
+                    for (var lightId : system.physicalLights()) {
+                        lights.add(lightsRepository.findById(lightId).get());
+                    }
+                    return new TrafficLightSystemWithLights(system.id(), lights);
+                }
+        ).collect(Collectors.toList());
     }
 
     @PostMapping("/add")

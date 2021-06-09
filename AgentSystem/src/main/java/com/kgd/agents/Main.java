@@ -52,21 +52,22 @@ public class Main {
 
         var tlService = new HttpTrafficLightsService();
 
-        for (var tl : tlService.findAll()) {
+        for (var tlSystem : tlService.findAllSystems()) {
             var managerAgent = tlContainer.createNewAgent(
-                    tl.id() + "_manager", TrafficLightsManagerAgent.class.getName(), new Object[]{tl}
+                    tlSystem.id() + "_manager", TrafficLightsManagerAgent.class.getName(),
+                    new Object[]{tlSystem.physicalLights()[0].id(), tlSystem.physicalLights()[1].id()}
             );
             managerAgent.start();
 
-//            var isGreenMap = new HashMap<Vec2, Boolean>();
-//            for (Vec2 dir : tl.approachDirections()) {
-//                isGreenMap.put(dir, false);
-//            }
-
-            var signalerAgent = tlContainer.createNewAgent(
-                    tl.id() + "_signaler", TrafficLightSignalerAgent.class.getName(), new Object[]{tl, true}
-            );
-            signalerAgent.start();
+            boolean[] isGreen = new boolean[]{true, false};
+            for (int i = 0; i < tlSystem.physicalLights().length; i++) {
+                var tl = tlSystem.physicalLights()[i];
+                var signalerAgent = tlContainer.createNewAgent(
+                        tl.id(), TrafficLightSignalerAgent.class.getName(),
+                        new Object[]{tl, isGreen[i]}
+                );
+                signalerAgent.start();
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.kgd.agents.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kgd.agents.models.geodata.TrafficLightSystem;
 import com.kgd.agents.models.geodata.TrafficLights;
 
 import java.io.IOException;
@@ -39,17 +40,17 @@ public class HttpTrafficLightsService implements TrafficLightsService {
     }
 
     @Override
-    public List<TrafficLights> findAll() throws IOException, InterruptedException {
+    public List<TrafficLightSystem> findAllSystems() throws IOException, InterruptedException {
         try {
             var request = HttpRequest
-                    .newBuilder(new URI(urlBase + "/lights/all"))
+                    .newBuilder(new URI(urlBase + "/lights/systems/all"))
                     .GET().build();
             var response = HttpClient
                     .newBuilder().build()
                     .send(request, HttpResponse.BodyHandlers.ofString());
             return objectMapper.readValue(
                     response.body(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, TrafficLights.class)
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, TrafficLightSystem.class)
             );
         }
         catch (URISyntaxException e) {
