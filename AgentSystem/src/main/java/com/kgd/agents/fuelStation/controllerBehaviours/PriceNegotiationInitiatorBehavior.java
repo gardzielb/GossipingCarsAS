@@ -33,6 +33,14 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
         priceSuggestions.forEach(
                 station -> locations.put(station.stationAid(), station.location())
         );
+
+        String name = agent.getLocalName();
+        var driverName = name.substring(0, name.length() - "_fuel_controller".length());
+
+        var message = new ACLMessage(ACLMessage.PROPOSE);
+        message.addReceiver(new AID(driverName, AID.ISLOCALNAME));
+        message.setContent("stop");
+        agent.send(message);
     }
 
     @Override
@@ -76,12 +84,12 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
         System.out.println("Ending negotiation, the winner is " + bestPrice);
         agent.negotiatedPrice = bestPrice;
 
-        String name = agent.getLocalName();
-        name = name.substring(0, name.length() - "_fuel_controller".length());
+        String driverName = agent.getLocalName();
+        driverName = driverName.substring(0, driverName.length() - "_fuel_controller".length());
 
         // request a new waypoint
         var message = new ACLMessage(ACLMessage.REQUEST);
-        message.addReceiver(new AID(name+"_route_navigator", AID.ISLOCALNAME));
+        message.addReceiver(new AID(driverName+"_route_navigator", AID.ISLOCALNAME));
         try {
             message.setContent((new ObjectMapper()).writeValueAsString(
                     new GeoPoint[] { locations.get(agent.negotiatedPrice.stationAid()) }
@@ -91,6 +99,11 @@ public class PriceNegotiationInitiatorBehavior extends ContractNetInitiator {
 
         agent.negotiatedPrice = bestPrice;
         agent.removeBehaviour(this);
+
+        message = new ACLMessage(ACLMessage.PROPOSE);
+        message.addReceiver(new AID(driverName, AID.ISLOCALNAME));
+        message.setContent("start");
+        agent.send(message);
 
         return super.onEnd();
     }
