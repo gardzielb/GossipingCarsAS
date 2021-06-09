@@ -40,7 +40,6 @@ public class TrafficLightSignalerAgent extends Agent {
 
     public void changeLight() {
         isGreen = !isGreen;
-//        System.out.println(getLocalName() + ": " + (isGreen ? "GREEN" : "RED"));
     }
 
     private void registerInDF() {

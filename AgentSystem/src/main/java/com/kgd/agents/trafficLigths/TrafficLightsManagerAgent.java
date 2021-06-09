@@ -1,7 +1,7 @@
 package com.kgd.agents.trafficLigths;
 
 import com.kgd.agents.trafficLigths.managerBehaviors.ControlTrafficLightsColorBehavior;
-import com.kgd.agents.trafficLigths.managerBehaviors.ReceiveApproachNotificationsBehavior;
+import com.kgd.agents.trafficLigths.managerBehaviors.ReceiveCarNotificationsBehavior;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -23,7 +23,7 @@ public class TrafficLightsManagerAgent extends Agent {
         trafficLightIds = new String[]{args[0].toString(), args[1].toString()};
         registerInDF();
 
-        addBehaviour(new ReceiveApproachNotificationsBehavior(this));
+        addBehaviour(new ReceiveCarNotificationsBehavior(this));
         addBehaviour(new ControlTrafficLightsColorBehavior(this, 3000, 5000, trafficLightIds));
     }
 

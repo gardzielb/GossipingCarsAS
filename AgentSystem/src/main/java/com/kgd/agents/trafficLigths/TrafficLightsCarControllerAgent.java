@@ -77,8 +77,6 @@ public class TrafficLightsCarControllerAgent extends Agent {
         if (trafficLightsQueue.isEmpty())
             return;
 
-        System.out.println("Next TL ahead of me");
-
         var trafficLightsData = trafficLightsQueue.remove();
         System.out.println(trafficLightsData);
 

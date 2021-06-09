@@ -9,7 +9,6 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-// TODO: this thing is messy, clean it up, man
 public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 
     private final TrafficLightsCarControllerAgent controllerAgent;
@@ -29,7 +28,6 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
     public void action() {
 
         if (isAsking) {
-            System.out.println("Asking light signaler if passage possible");
             var canPassQuery = new ACLMessage(ACLMessage.QUERY_IF);
             canPassQuery.addReceiver(tlSignalerId);
             controllerAgent.send(canPassQuery);
