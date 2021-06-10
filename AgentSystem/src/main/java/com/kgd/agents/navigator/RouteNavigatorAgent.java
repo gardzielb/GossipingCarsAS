@@ -37,7 +37,8 @@ public class RouteNavigatorAgent extends Agent {
         }
         catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
-            throw new IllegalStateException("Failed to find route");
+            System.out.println("Oh no, failed to find route");
+            takeDown();
         }
 
         addBehaviour(new HandleNewWaypointRequestBehavior(this));

@@ -1,12 +1,15 @@
 package com.kgd.agents.driver;
 
 import com.kgd.agents.driver.behaviors.*;
+import com.kgd.agents.models.geodata.Stats;
 import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.models.geodata.DecodedRoute;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
 import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.services.AgentLocationService;
 import com.kgd.agents.services.HttpAgentLocationService;
+import com.kgd.agents.services.HttpStatsService;
+import com.kgd.agents.services.StatsService;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
@@ -28,6 +31,9 @@ public class DriverAgent extends Agent {
     public double fullDistance = 0.0;
     public Behaviour calcPositionBehaviour;
 
+    public boolean arrived = false;
+
+
     private double originX;
     private double originY;
 
@@ -36,11 +42,10 @@ public class DriverAgent extends Agent {
     protected double simulationSpeed = 1.0;
     private String destinationId;
 
-
-
     public DecodedRoute route = null;
 
     private AgentLocationService agentLocationService;
+    private StatsService statsService;
 
     @Override
     protected void setup() {
@@ -58,6 +63,7 @@ public class DriverAgent extends Agent {
         velocity *= simulationSpeed;
 
         agentLocationService = new HttpAgentLocationService();
+        statsService = new HttpStatsService();
 
         addBehaviour(new RequestPositionBehaviour(this));
         addBehaviour(new NewRouteReceivedBehaviour(this));
@@ -65,6 +71,7 @@ public class DriverAgent extends Agent {
         // querying the RouteNavigatorAgent for route
         var message = new ACLMessage(ACLMessage.QUERY_REF);
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
+
         send(message);
 
         calcPositionBehaviour = new CalculatePositionOnRouteBehaviour(this);
@@ -76,6 +83,7 @@ public class DriverAgent extends Agent {
     @Override
     public void takeDown() {
         agentLocationService.deleteAgentLocationByAID(getAID().toString());
+        statsService.upsert(new Stats(null, getLocalName(), fullDistance, null, null, arrived));
 
         Thread t = new Thread(() -> {
             try {
