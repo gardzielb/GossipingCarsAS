@@ -25,7 +25,7 @@ import java.util.List;
 public class FuelCarControllerAgent extends Agent {
     public final double combustion = 8.0;
     public final double capacity = 20.0;
-    public double currentCapacity = 2.05;
+    public double currentCapacity = capacity;
     public boolean onRouteToStation = false;
 
     private boolean isDumb = false;
