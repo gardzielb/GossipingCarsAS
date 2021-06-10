@@ -31,6 +31,15 @@ public class PrepareForNegotiationsBehaviour extends OneShotBehaviour {
     @Override
     public void action() {
         double kmRadius = agent.currentCapacity / agent.combustion * 100;
+        System.out.println("Beginning negotiations, stopping car...");
+
+        String name = agent.getLocalName();
+        var driverName = name.substring(0, name.length() - "_fuel_controller".length());
+
+        var message = new ACLMessage(ACLMessage.PROPOSE);
+        message.addReceiver(new AID(driverName, AID.ISLOCALNAME));
+        message.setContent("stop");
+        agent.send(message);
 
         var carLocationInfo = getCarLocationData();
 

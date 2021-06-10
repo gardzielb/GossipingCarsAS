@@ -8,12 +8,9 @@ import com.kgd.agents.fuelStation.PriceSuggestion;
 import com.kgd.agents.models.geodata.GeoPoint;
 import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;
-import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
-import jade.proto.ContractNetInitiator;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
 
 public class DumbStationSelectionBehaviour extends OneShotBehaviour {
 
@@ -43,5 +40,10 @@ public class DumbStationSelectionBehaviour extends OneShotBehaviour {
         } catch (JsonProcessingException ignore) { }
         agent.send(message);
         agent.removeBehaviour(this);
+
+        message = new ACLMessage(ACLMessage.PROPOSE);
+        message.addReceiver(new AID(name, AID.ISLOCALNAME));
+        message.setContent("start");
+        agent.send(message);
     }
 }
