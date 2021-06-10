@@ -15,7 +15,7 @@ public class CalculatePositionOnRouteBehaviour extends TickerBehaviour {
     public boolean done = false;
 
     public CalculatePositionOnRouteBehaviour(DriverAgent agent) {
-        super(agent, 500);
+        super(agent, 200);
         agent.time = Instant.now().toEpochMilli();
         this.agent = agent;
     }
