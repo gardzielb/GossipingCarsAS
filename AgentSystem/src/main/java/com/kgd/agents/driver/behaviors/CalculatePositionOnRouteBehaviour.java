@@ -59,6 +59,7 @@ public class CalculatePositionOnRouteBehaviour extends TickerBehaviour {
                         // passing the final endpoint on route
                         System.out.println(agent.getLocalName()+" has reached their destination.");
                         done = true;
+                        agent.arrived = true;
                         agent.takeDown();
                         return;
                     } else {

@@ -2,7 +2,6 @@ package com.kgd.agents.walletController.behaviors;
 
 import com.kgd.agents.walletController.WalletController;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
