@@ -7,7 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "trafficLights")
 public record TrafficLights(
-		@JsonProperty("id") ObjectId id,
-		@JsonProperty("location") Point location,
-		@JsonProperty("routeTags") String[] routeTags
+        @JsonProperty("id") ObjectId id,
+        @JsonProperty("location") Point location,
+        @JsonProperty("routeTags") String[] routeTags,
+        @JsonProperty("isGreen") boolean isGreen
 ) {}

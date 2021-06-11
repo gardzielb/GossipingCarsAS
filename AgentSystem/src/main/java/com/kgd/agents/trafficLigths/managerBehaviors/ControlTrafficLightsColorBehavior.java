@@ -12,9 +12,9 @@ public class ControlTrafficLightsColorBehavior extends WakerBehaviour {
     private final String[] signalerAgentNames;
 
     public ControlTrafficLightsColorBehavior(Agent agent, long timeout, long nextChangeTimeout,
-                                             String[] signalerAgentNames) {
+                                             String... signalerAgentNames) {
         super(agent, timeout);
-        this.signalerAgentNames = signalerAgentNames.clone();
+        this.signalerAgentNames = signalerAgentNames;
         intervals[0] = timeout;
         intervals[1] = nextChangeTimeout;
     }

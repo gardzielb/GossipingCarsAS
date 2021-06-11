@@ -38,7 +38,7 @@ public class SignalTrafficLightColorBehavior extends CyclicBehaviour {
                     managerNotification.addReceiver(new AID(managerName, AID.ISLOCALNAME));
 
                     var notificationContent = new TrafficLightNotification(
-                            NotificationType.PASS_THROUGH, isGreenQuery.getSender().getLocalName()
+                            NotificationType.PASS_THROUGH, agent.getLocalName()
                     );
                     managerNotification.setContent(serializer.writeValueAsString(notificationContent));
                     agent.send(managerNotification);

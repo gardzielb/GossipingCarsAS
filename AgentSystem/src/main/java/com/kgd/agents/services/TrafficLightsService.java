@@ -10,4 +10,6 @@ public interface TrafficLightsService {
     List<TrafficLights> findAllByRouteTag(String tag) throws IOException, InterruptedException;
 
     List<TrafficLightSystem> findAllSystems() throws IOException, InterruptedException;
+
+    TrafficLights updateTrafficLights(TrafficLights trafficLights) throws IOException, InterruptedException;
 }

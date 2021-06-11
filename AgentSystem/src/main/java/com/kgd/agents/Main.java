@@ -58,26 +58,24 @@ public class Main {
             String managerName = tlSystem.id() + "_manager";
             var managerAgent = tlContainer.createNewAgent(
                     managerName, TrafficLightsManagerAgent.class.getName(),
-                    new Object[]{tlSystem.physicalLights()[0].id(), tlSystem.physicalLights()[1].id()}
+                    new Object[]{tlSystem.physicalLights()[0].id(), tlSystem.physicalLights()[1].id(), 7}
             );
             managerAgent.start();
 
             startTLSignaler(
-                    tlContainer, tlSystem.physicalLights()[0], true, managerName,
-                    tlSystem.physicalLights()[1].location()
+                    tlContainer, tlSystem.physicalLights()[0], managerName, tlSystem.physicalLights()[1].location()
             );
             startTLSignaler(
-                    tlContainer, tlSystem.physicalLights()[1], false, managerName,
-                    tlSystem.physicalLights()[0].location()
+                    tlContainer, tlSystem.physicalLights()[1], managerName, tlSystem.physicalLights()[0].location()
             );
         }
     }
 
-    private static void startTLSignaler(AgentContainer container, TrafficLights lights, boolean isGreen,
-                                        String managerName, GeoPoint exitPoint) throws StaleProxyException {
+    private static void startTLSignaler(AgentContainer container, TrafficLights lights, String managerName,
+                                        GeoPoint exitPoint) throws StaleProxyException {
         var signaler = container.createNewAgent(
                 lights.id(), TrafficLightSignalerAgent.class.getName(),
-                new Object[]{lights, isGreen, exitPoint, managerName}
+                new Object[]{lights, exitPoint, managerName}
         );
         signaler.start();
 

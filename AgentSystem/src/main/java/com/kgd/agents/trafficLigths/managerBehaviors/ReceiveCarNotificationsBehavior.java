@@ -3,17 +3,17 @@ package com.kgd.agents.trafficLigths.managerBehaviors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.messages.TrafficLightNotification;
-import jade.core.Agent;
+import com.kgd.agents.trafficLigths.TrafficLightsManagerAgent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 public class ReceiveCarNotificationsBehavior extends CyclicBehaviour {
 
-    private final Agent managerAgent;
+    private final TrafficLightsManagerAgent managerAgent;
     private final ObjectMapper deserializer = new ObjectMapper();
 
-    public ReceiveCarNotificationsBehavior(Agent managerAgent) {
+    public ReceiveCarNotificationsBehavior(TrafficLightsManagerAgent managerAgent) {
         this.managerAgent = managerAgent;
     }
 
@@ -28,11 +28,9 @@ public class ReceiveCarNotificationsBehavior extends CyclicBehaviour {
                         notification.getContent(), TrafficLightNotification.class
                 );
                 switch (notificationContent.type()) {
-                    case EXPECTED_APPROACH -> handleExpectedApproach(
-                            notification.getSender().getLocalName(), notificationContent.data()
-                    );
-                    case PASS_THROUGH -> handlePassThrough(notificationContent.data());
-                    case EXIT -> handleExit(notificationContent.data());
+                    case EXPECTED_APPROACH -> managerAgent.handleExpectedApproach(notificationContent.data());
+                    case PASS_THROUGH -> managerAgent.handlePassThrough(notificationContent.data());
+                    case EXIT -> managerAgent.handleExit(notificationContent.data());
                 }
             }
             catch (JsonProcessingException e) {
@@ -42,17 +40,5 @@ public class ReceiveCarNotificationsBehavior extends CyclicBehaviour {
         else {
             block();
         }
-    }
-
-    private void handleExpectedApproach(String carId, String lightsId) {
-        System.out.println("Car " + carId + " is coming to lights " + lightsId);
-    }
-
-    private void handlePassThrough(String carId) {
-        System.out.println("Car " + carId + " is passing through");
-    }
-
-    private void handleExit(String carId) {
-        System.out.println("Car " + carId + " is exiting");
     }
 }

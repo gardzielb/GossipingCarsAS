@@ -14,17 +14,20 @@ public class ExitTrafficLightsBehavior extends OneShotBehaviour {
     private final TrafficLightsCarControllerAgent controllerAgent;
     private final AID trafficLightsAgent;
     private final ObjectMapper serializer = new ObjectMapper();
+    private final String trafficLightId;
 
-    public ExitTrafficLightsBehavior(TrafficLightsCarControllerAgent controllerAgent, AID trafficLightsAgent) {
+    public ExitTrafficLightsBehavior(TrafficLightsCarControllerAgent controllerAgent, AID trafficLightsAgent,
+                                     String trafficLightId) {
         this.controllerAgent = controllerAgent;
         this.trafficLightsAgent = trafficLightsAgent;
+        this.trafficLightId = trafficLightId;
     }
 
     @Override
     public void action() {
         var exitNotification = new ACLMessage(ACLMessage.INFORM);
         exitNotification.addReceiver(trafficLightsAgent);
-        var notificationContent = new TrafficLightNotification(NotificationType.EXIT, controllerAgent.getLocalName());
+        var notificationContent = new TrafficLightNotification(NotificationType.EXIT, trafficLightId);
 
         try {
             exitNotification.setContent(serializer.writeValueAsString(notificationContent));

@@ -2,7 +2,9 @@ package com.kgd.agents.trafficLigths;
 
 import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.models.geodata.TrafficLights;
-import com.kgd.agents.trafficLigths.signalerBehaviors.ChangeLightColorBehavior;
+import com.kgd.agents.services.HttpTrafficLightsService;
+import com.kgd.agents.services.TrafficLightsService;
+import com.kgd.agents.trafficLigths.signalerBehaviors.HandleChangeLightColorRequestsBehavior;
 import com.kgd.agents.trafficLigths.signalerBehaviors.SignalTrafficLightColorBehavior;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -10,36 +12,54 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
+import java.io.IOException;
+
 public class TrafficLightSignalerAgent extends Agent {
 
-    private boolean isGreen = false;
     private TrafficLights trafficLights;
+    private final TrafficLightsService tlService = new HttpTrafficLightsService();
 
     @Override
     protected void setup() {
         super.setup();
 
         var args = getArguments();
-        if (args == null || args.length < 4)
+        if (args == null || args.length < 3)
             throw new RuntimeException("Traffic lights object is needed by Signaler agent");
 
         trafficLights = (TrafficLights) args[0];
-        isGreen = (boolean) args[1];
-        var exitPoint = (GeoPoint) args[2];
-        var exitControllerName = args[3].toString();
+        var exitPoint = (GeoPoint) args[1];
+        var exitControllerName = args[2].toString();
 
         registerInDF();
 
         addBehaviour(new SignalTrafficLightColorBehavior(this, exitPoint, exitControllerName));
-        addBehaviour(new ChangeLightColorBehavior(this));
+        addBehaviour(new HandleChangeLightColorRequestsBehavior(this));
     }
 
     public boolean isGreen() {
-        return isGreen;
+        return trafficLights.isGreen();
     }
 
     public void changeLight() {
-        isGreen = !isGreen;
+        updateLights(!trafficLights.isGreen());
+    }
+
+    public void setLightGreen(boolean isGreen) {
+        updateLights(isGreen);
+    }
+
+    private void updateLights(boolean isGreen) {
+        try {
+            var updatedTL = new TrafficLights(
+                    trafficLights.id(), trafficLights.location(), trafficLights.routeTags(), isGreen
+            );
+            trafficLights = tlService.updateTrafficLights(updatedTL);
+        }
+        catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private void registerInDF() {

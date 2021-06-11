@@ -58,4 +58,23 @@ public class HttpTrafficLightsService implements TrafficLightsService {
             return null;
         }
     }
+
+    @Override
+    public TrafficLights updateTrafficLights(TrafficLights trafficLights) throws IOException, InterruptedException {
+        try {
+            var trafficLightsJson = objectMapper.writeValueAsString(trafficLights);
+            var request = HttpRequest
+                    .newBuilder(new URI(urlBase + "/lights/update"))
+                    .header("Content-Type", "application/json")
+                    .PUT(HttpRequest.BodyPublishers.ofString(trafficLightsJson)).build();
+            var response = HttpClient
+                    .newBuilder().build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+            return objectMapper.readValue(response.body(), TrafficLights.class);
+        }
+        catch (URISyntaxException e) {
+            System.out.println("Set 'MAPS_API_URL' env variable to valid URL");
+            return trafficLights;
+        }
+    }
 }

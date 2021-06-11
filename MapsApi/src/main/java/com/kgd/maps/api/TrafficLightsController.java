@@ -57,4 +57,9 @@ public class TrafficLightsController {
     public TrafficLightSystem addTrafficLightSystem(@RequestBody TrafficLightSystem lightSystem) {
         return lightSystemRepository.insert(lightSystem);
     }
+
+    @PutMapping("/update")
+    public TrafficLights updateTrafficLights(@RequestBody TrafficLights trafficLights) {
+        return lightsRepository.save(trafficLights);
+    }
 }

@@ -5,11 +5,11 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class ChangeLightColorBehavior extends CyclicBehaviour {
+public class HandleChangeLightColorRequestsBehavior extends CyclicBehaviour {
 
     private final TrafficLightSignalerAgent agent;
 
-    public ChangeLightColorBehavior(TrafficLightSignalerAgent agent) {
+    public HandleChangeLightColorRequestsBehavior(TrafficLightSignalerAgent agent) {
         this.agent = agent;
     }
 
@@ -19,7 +19,11 @@ public class ChangeLightColorBehavior extends CyclicBehaviour {
         var changeColorRequest = agent.receive(msgTemplate);
 
         if (changeColorRequest != null) {
-            agent.changeLight();
+            String content = changeColorRequest.getContent();
+            if (content.isBlank())
+                agent.changeLight();
+            else
+                agent.setLightGreen(Boolean.parseBoolean(content));
         }
         else {
             block();

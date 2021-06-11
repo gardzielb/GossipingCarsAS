@@ -78,7 +78,6 @@ public class TrafficLightsCarControllerAgent extends Agent {
             return;
 
         var trafficLightsData = trafficLightsQueue.remove();
-        System.out.println(trafficLightsData);
 
         var agentDescription = new DFAgentDescription();
         var serviceDescription = new ServiceDescription();
@@ -117,7 +116,8 @@ public class TrafficLightsCarControllerAgent extends Agent {
             var tlAgents = DFService.search(this, agentDescription);
             var approachTlBehavior = new ApproachTrafficLightsBehavior(this, tlAgents[0].getName());
             currentTLInteractionBehavior = new DriveToPointBehavior(
-                    this, trafficLights.location(), approachTlBehavior);
+                    this, trafficLights.location(), approachTlBehavior
+            );
             addBehaviour(currentTLInteractionBehavior);
         }
         catch (FIPAException e) {
@@ -125,8 +125,8 @@ public class TrafficLightsCarControllerAgent extends Agent {
         }
     }
 
-    public void passBetweenTrafficLights(AID tlAgent, GeoPoint exitPoint) {
-        var exitTlBehavior = new ExitTrafficLightsBehavior(this, tlAgent);
+    public void passBetweenTrafficLights(AID tlAgent, GeoPoint exitPoint, String enterTlId) {
+        var exitTlBehavior = new ExitTrafficLightsBehavior(this, tlAgent, enterTlId);
         currentTLInteractionBehavior = new DriveToPointBehavior(this, exitPoint, exitTlBehavior);
         addBehaviour(currentTLInteractionBehavior);
     }

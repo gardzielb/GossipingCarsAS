@@ -46,7 +46,8 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
                 try {
                     var exitData = deserializer.readValue(canPassResponse.getContent(), TrafficLightExitData.class);
                     controllerAgent.passBetweenTrafficLights(
-                            new AID(exitData.agentName(), AID.ISLOCALNAME), exitData.exitPoint()
+                            new AID(exitData.agentName(), AID.ISLOCALNAME), exitData.exitPoint(),
+                            tlSignalerId.getLocalName()
                     );
                     canPassTL = true;
                 }
