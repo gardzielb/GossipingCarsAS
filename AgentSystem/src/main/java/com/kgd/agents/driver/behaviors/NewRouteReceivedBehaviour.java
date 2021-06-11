@@ -22,15 +22,23 @@ public class NewRouteReceivedBehaviour extends CyclicBehaviour {
         MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
         var message = agent.receive(mt);
 
-        if (message == null) return;
+        if (message != null) {
+            // decoding the route
+            try {
+                Route encodedRoute = (new ObjectMapper()).readValue(message.getContent(), Route.class);
+                agent.route = new DecodedRoute(encodedRoute);
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return;
+            }
 
-        // decoding the route
-        try {
-            Route encodedRoute = (new ObjectMapper()).readValue(message.getContent(), Route.class);
-            agent.route = new DecodedRoute(encodedRoute);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return;
+            agent.routeSegment = 0;
+            agent.segmentFragment = 0;
+            agent.percent = 0.0;
+        }
+        else {
+            block();
         }
 
         agent.routeSegment = 0;

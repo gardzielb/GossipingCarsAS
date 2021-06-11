@@ -3,10 +3,14 @@ package com.kgd.agents.navigator.behaviors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
+import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+
+import java.io.IOException;
 
 public class HandleNewWaypointRequestBehavior extends CyclicBehaviour {
 
@@ -30,6 +34,10 @@ public class HandleNewWaypointRequestBehavior extends CyclicBehaviour {
             catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+        }
+        else
+        {
+            block();
         }
     }
 }

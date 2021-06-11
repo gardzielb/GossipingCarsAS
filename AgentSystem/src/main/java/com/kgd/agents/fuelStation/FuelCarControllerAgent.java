@@ -28,12 +28,19 @@ public class FuelCarControllerAgent extends Agent {
     public double currentCapacity = capacity;
     public boolean onRouteToStation = false;
 
+    private boolean isDumb = false;
+
     public PriceSuggestion negotiatedPrice;
 
     @Override
     protected void setup() {
         super.setup();
-
+        Object[] args = getArguments();
+        isDumb = Boolean.parseBoolean((String) args[0]);
         addBehaviour(new UpdateFuelLevelBehaviour(this));
+    }
+
+    public boolean isDumb() {
+        return isDumb;
     }
 }

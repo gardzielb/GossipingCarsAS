@@ -27,7 +27,7 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
     protected void onTick() {
         var requests = carDataService.getAll();
 
-        for (var request: requests) {
+        for (var request : requests) {
             Object[] args = new Object[] {
                     Double.toString(request.origin().x()),
                     Double.toString(request.origin().y()),
@@ -35,6 +35,11 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                     Double.toString(request.velocity()),
                     request.routeTag()
             };
+
+            var fuelControllerArgs = new Object[] {
+                    Boolean.toString(request.dumb()),
+            };
+
             String name = "Car_" + carNumber;
 
             // create a sub-container
@@ -47,7 +52,7 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
             // create agents inside container
             try {
                 // fuel controller has no conflicts with other agents, can be created first
-                AgentController fuel = container.createNewAgent(name + "_fuel_controller", FuelCarControllerAgent.class.getName(), null);
+                AgentController fuel = container.createNewAgent(name + "_fuel_controller", FuelCarControllerAgent.class.getName(), fuelControllerArgs);
                 fuel.start();
 
                 // cost controller has no conflicts with other agents either

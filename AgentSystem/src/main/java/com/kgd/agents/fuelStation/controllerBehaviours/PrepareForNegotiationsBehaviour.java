@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.maps.model.PlaceType;
 import com.kgd.agents.fuelStation.FuelCarControllerAgent;
 import com.kgd.agents.fuelStation.FuelStationData;
-import com.kgd.agents.fuelStation.OptimalFuelPriceCalculator;
 import com.kgd.agents.models.geodata.GeoPoint;
 import com.kgd.agents.models.geodata.Place;
 import com.kgd.agents.models.messages.CarLocationData;
@@ -22,6 +21,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 public class PrepareForNegotiationsBehaviour extends OneShotBehaviour {
@@ -31,6 +31,15 @@ public class PrepareForNegotiationsBehaviour extends OneShotBehaviour {
     @Override
     public void action() {
         double kmRadius = agent.currentCapacity / agent.combustion * 100;
+        System.out.println("Beginning negotiations, stopping car...");
+
+        String name = agent.getLocalName();
+        var driverName = name.substring(0, name.length() - "_fuel_controller".length());
+
+        var message = new ACLMessage(ACLMessage.PROPOSE);
+        message.addReceiver(new AID(driverName, AID.ISLOCALNAME));
+        message.setContent("stop");
+        agent.send(message);
 
         var carLocationInfo = getCarLocationData();
 
@@ -43,14 +52,18 @@ public class PrepareForNegotiationsBehaviour extends OneShotBehaviour {
 
         var stationsData = nearbyStations.stream().map(
                 station -> findStationDetails(station, carLocationInfo.position(), carLocationInfo.destinationId())
-        );
+        ).toList();
 
-        var asList = stationsData.toList();
-
-        var optimalPrices = OptimalFuelPriceCalculator
-                .calculateOptimalFuelPricesAsPriceSuggestion(asList);
-
-        agent.addBehaviour(new PriceNegotiationInitiatorBehavior(agent, optimalPrices));
+        if(agent.isDumb())
+        {
+            var closestStation = stationsData.stream().min(Comparator.comparingDouble(FuelStationData::routeDistance));
+            System.out.printf("I'm dumb as a brick and %f,%f is the closest, going there%n", closestStation.orElseThrow().location().x(), closestStation.orElseThrow().location().y());
+            agent.addBehaviour(new DumbStationSelectionBehaviour(agent, closestStation.orElseThrow()));
+        }
+        else
+        {
+            agent.addBehaviour(new PriceNegotiationInitiatorBehavior(agent, stationsData));
+        }
     }
 
     private CarLocationData getCarLocationData() {
