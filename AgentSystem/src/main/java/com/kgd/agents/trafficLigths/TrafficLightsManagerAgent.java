@@ -1,5 +1,6 @@
 package com.kgd.agents.trafficLigths;
 
+import com.kgd.agents.services.LoggerFactory;
 import com.kgd.agents.trafficLigths.managerBehaviors.LightColorController;
 import com.kgd.agents.trafficLigths.managerBehaviors.ReceiveCarNotificationsBehavior;
 import jade.core.Agent;
@@ -7,6 +8,7 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import org.apache.logging.log4j.Logger;
 
 public class TrafficLightsManagerAgent extends Agent {
 
@@ -14,6 +16,8 @@ public class TrafficLightsManagerAgent extends Agent {
         public int approachingCount = 0;
         public int passingCount = 0;
     }
+
+    private static final Logger logger = LoggerFactory.getLogger("TL Manager");
 
     private final LightColorController lightColorController = new LightColorController(this);
 
@@ -42,7 +46,7 @@ public class TrafficLightsManagerAgent extends Agent {
     }
 
     public void handleExpectedApproach(String lightsId) {
-        System.out.println("Car is coming to lights " + lightsId);
+//        logger.debug("Car is coming to lights {}", lightsId);
         var carsData = carsData(lightsId);
         carsData.approachingCount++;
 
@@ -50,15 +54,15 @@ public class TrafficLightsManagerAgent extends Agent {
         var otherSideData = carsData(otherLightsId);
 
         if (otherSideData.passingCount == 0 && otherSideData.approachingCount == 0) {
-            System.out.println("No one is driving from the other side, green light for him");
+//            logger.debug("No one is driving from the other side, green light for him");
             lightColorController.cancelLightsColorChange();
             lightColorController.changeLightsColor(otherLightsId, false);
             lightColorController.changeLightsColor(lightsId, true);
         }
         else if (!lightColorController.isColorChangeScheduled()) {
-            System.out.println("Scheduling back light changes");
-            long timeout = computeLightsTimeout(lightsId);
-            lightColorController.scheduleLightsColorChange(lightsId, otherLightsId, timeout);
+//            logger.debug("Scheduling back light changes");
+            long timeout = computeLightsTimeout(otherLightsId);
+            lightColorController.scheduleLightsColorChange(otherLightsId, lightsId, timeout);
         }
     }
 
@@ -77,21 +81,37 @@ public class TrafficLightsManagerAgent extends Agent {
     }
 
     public void handlePassThrough(String lightsId) {
-        System.out.println("Car coming from lights " + lightsId + " is passing through");
+//        logger.debug("Car coming from lights {} is passing through", lightsId);
         var carsData = carsData(lightsId);
-        carsData.approachingCount--;
+        if (carsData.approachingCount > 0)
+            carsData.approachingCount--;
         carsData.passingCount++;
     }
 
     public void handleExit(String lightsId) {
-        System.out.println("Car coming from lights " + lightsId + " is exiting");
+//        logger.debug("Car coming from lights {} is exiting", lightsId);
         var carsData = carsData(lightsId);
         carsData.passingCount--;
 
-        if (carsData.passingCount == 0 && !lightColorController.isColorChangeScheduled()) {
-            lightColorController.changeLightsColor(lightsId, true);
+//        String changeScheduleInfo = lightColorController.isColorChangeScheduled() ? "scheduled" : "not scheduled";
+//        String lightColor = lightColorController.isLightGreen(lightsId) ? "green" : "red";
+//        logger.debug(
+//                "There are currently {} cars passing from that direction, light change is {} and light {} is {}",
+//                carsData.passingCount, changeScheduleInfo, lightsId, lightColor
+//        );
+
+        if (carsData.passingCount == 0 &&
+                !lightColorController.isColorChangeScheduled() &&
+                !lightColorController.isLightGreen(lightsId)) {
+
+            var otherLightsId = otherLightsId(lightsId);
+//            logger.debug(
+//                    "Turning lights {} green, because {} are red already", otherLightsId, lightsId
+//            );
+
+            lightColorController.changeLightsColor(otherLightsId, true);
             lightColorController.scheduleLightsColorChange(
-                    lightsId, otherLightsId(lightsId), computeLightsTimeout(lightsId)
+                    otherLightsId, lightsId, computeLightsTimeout(otherLightsId)
             );
         }
     }
@@ -121,10 +141,10 @@ public class TrafficLightsManagerAgent extends Agent {
 
         try {
             DFService.register(this, agentDescription);
-            System.out.println("Registered TL service");
+            logger.info("Registered TL service");
         }
         catch (FIPAException e) {
-            System.out.println("Failed to register TL service");
+            logger.error("Failed to register TL service");
             e.printStackTrace();
         }
     }

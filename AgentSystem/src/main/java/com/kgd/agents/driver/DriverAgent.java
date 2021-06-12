@@ -1,25 +1,20 @@
 package com.kgd.agents.driver;
 
 import com.kgd.agents.driver.behaviors.*;
-import com.kgd.agents.models.geodata.Stats;
-import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.models.geodata.DecodedRoute;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
 import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.Stats;
+import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.services.AgentLocationService;
 import com.kgd.agents.services.HttpAgentLocationService;
 import com.kgd.agents.services.HttpStatsService;
 import com.kgd.agents.services.StatsService;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.domain.mobility.MobilityOntology;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.ControllerException;
-
-import java.time.Instant;
 
 public class DriverAgent extends Agent {
 
@@ -59,8 +54,6 @@ public class DriverAgent extends Agent {
         originY = Double.parseDouble((String) args[1]);
         destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
-        simulationSpeed = Double.parseDouble((String) args[4]);
-        velocity *= simulationSpeed;
 
         agentLocationService = new HttpAgentLocationService();
         statsService = new HttpStatsService();

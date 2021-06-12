@@ -62,7 +62,7 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                 // no conflicts as well
                 AgentController trafficLights = container.createNewAgent(
                         name + "_TL_controller", TrafficLightsCarControllerAgent.class.getName(),
-                        new Object[]{Double.toString(request.velocity()), 7}
+                        new Object[]{Double.toString(request.velocity()), 7, Boolean.toString(request.dumb())}
                 );
                 trafficLights.start();
 

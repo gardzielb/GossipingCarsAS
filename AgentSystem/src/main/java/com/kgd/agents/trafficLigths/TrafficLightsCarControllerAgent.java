@@ -2,6 +2,7 @@ package com.kgd.agents.trafficLigths;
 
 import com.kgd.agents.models.geodata.*;
 import com.kgd.agents.services.EarthDistanceCalculator;
+import com.kgd.agents.services.LoggerFactory;
 import com.kgd.agents.trafficLigths.controllerBehaviors.*;
 import jade.core.AID;
 import jade.core.Agent;
@@ -10,6 +11,7 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -18,10 +20,13 @@ import java.util.Queue;
 
 public class TrafficLightsCarControllerAgent extends Agent {
 
+    private static final Logger logger = LoggerFactory.getLogger("TL Car Controller");
+
     private final Queue<TrafficLightsData> trafficLightsQueue = new ArrayDeque<>();
     private Behaviour currentTLInteractionBehavior = null;
 
     private double notificationDistKm = 0.1;
+    private boolean isDumb;
 
     @Override
     protected void setup() {
@@ -33,21 +38,21 @@ public class TrafficLightsCarControllerAgent extends Agent {
 
         double velocity = Double.parseDouble(args[0].toString());
         int notificationTime = Integer.parseInt(args[1].toString());
+
+        isDumb = Boolean.parseBoolean(args[2].toString());
         notificationDistKm = velocity * ((double) notificationTime / 3600);
 
         addBehaviour(new UpdateTrafficLightsQueueBehavior(this));
     }
 
     public void updateLightsQueue(Route route, List<TrafficLights> trafficLights) {
-        System.out.println("Received new route, updating TL queue");
-
         if (currentTLInteractionBehavior != null)
             removeBehaviour(currentTLInteractionBehavior);
 
         trafficLightsQueue.clear();
 
         var decodedRoute = new DecodedRoute(route);
-        double HIT_RADIUS_KM = 0.1;
+        double HIT_RADIUS_KM = 0.2;
 
         var fullPolyline = decodedRoute.segments.stream().map(seg -> seg.route).reduce(
                 new ArrayList<>(), (prevList, segRoute) -> {
@@ -56,15 +61,17 @@ public class TrafficLightsCarControllerAgent extends Agent {
                 }
         );
 
-        for (var tl : trafficLights) {
-            for (int i = 0; i < fullPolyline.size(); i++) {
-                var routePoint = fullPolyline.get(i);
+        for (int i = 0; i < fullPolyline.size(); i++) {
+            var routePoint = fullPolyline.get(i);
+
+            for (var tl : trafficLights) {
                 double distance = EarthDistanceCalculator.distance(
                         routePoint.y(), tl.location().y(), routePoint.x(), tl.location().x()
                 );
                 if (distance < HIT_RADIUS_KM) {
                     var notificationPoint = findNotificationPoint(fullPolyline, i);
                     trafficLightsQueue.add(new TrafficLightsData(tl, notificationPoint));
+                    trafficLights.remove(tl);
                     break;
                 }
             }
@@ -78,6 +85,12 @@ public class TrafficLightsCarControllerAgent extends Agent {
             return;
 
         var trafficLightsData = trafficLightsQueue.remove();
+        logger.debug("Lights {} are ahead of me", trafficLightsData.trafficLights().id());
+
+        if (isDumb) {
+            approachTrafficLights(trafficLightsData.trafficLights());
+            return;
+        }
 
         var agentDescription = new DFAgentDescription();
         var serviceDescription = new ServiceDescription();
@@ -106,6 +119,8 @@ public class TrafficLightsCarControllerAgent extends Agent {
     }
 
     public void approachTrafficLights(TrafficLights trafficLights) {
+        logger.debug("Approaching lights {}", trafficLights.id());
+
         var agentDescription = new DFAgentDescription();
         var serviceDescription = new ServiceDescription();
         serviceDescription.setName(trafficLights.id() + "_signaler");
@@ -126,6 +141,8 @@ public class TrafficLightsCarControllerAgent extends Agent {
     }
 
     public void passBetweenTrafficLights(AID tlAgent, GeoPoint exitPoint, String enterTlId) {
+        logger.debug("Passing through {} traffic lights", tlAgent.getLocalName());
+
         var exitTlBehavior = new ExitTrafficLightsBehavior(this, tlAgent, enterTlId);
         currentTLInteractionBehavior = new DriveToPointBehavior(this, exitPoint, exitTlBehavior);
         addBehaviour(currentTLInteractionBehavior);

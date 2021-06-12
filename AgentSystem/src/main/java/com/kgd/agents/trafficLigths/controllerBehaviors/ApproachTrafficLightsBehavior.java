@@ -42,7 +42,9 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 
         if (canPassResponse != null) {
             if (canPassResponse.getPerformative() == ACLMessage.AGREE) {
-                System.out.println("Signaler allowed me to pass");
+//                System.out.println("Signaler allowed me to pass");
+                changeCarMovement("start");
+
                 try {
                     var exitData = deserializer.readValue(canPassResponse.getContent(), TrafficLightExitData.class);
                     controllerAgent.passBetweenTrafficLights(
@@ -56,7 +58,8 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
                 }
             }
             else if (!isCarStopped) {
-                System.out.println("Stopping the car");
+//                System.out.println("Stopping the car");
+                changeCarMovement("stop");
                 isCarStopped = true;
             }
 
@@ -70,5 +73,17 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
     @Override
     public boolean done() {
         return canPassTL;
+    }
+
+    private void changeCarMovement(String command) {
+        String agentName = controllerAgent.getLocalName();
+        String carName = agentName.substring(0, agentName.length() - "_TL_controller".length());
+        var destinationAID = new AID(carName, AID.ISLOCALNAME);
+
+        var stopRequest = new ACLMessage(ACLMessage.PROPOSE);
+        stopRequest.addReceiver(destinationAID);
+        stopRequest.setContent(command);
+
+        controllerAgent.send(stopRequest);
     }
 }

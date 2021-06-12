@@ -7,16 +7,20 @@ import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.navigator.behaviors.HandleNewWaypointRequestBehavior;
 import com.kgd.agents.navigator.behaviors.HandleRouteQueryBehavior;
 import com.kgd.agents.services.HttpRouteService;
+import com.kgd.agents.services.LoggerFactory;
 import com.kgd.agents.services.RouteService;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class RouteNavigatorAgent extends Agent {
+
+    private static final Logger logger = LoggerFactory.getLogger("Route Navigator");
 
     private final RouteService routeService = new HttpRouteService();
     private Route currentRoute;
@@ -38,8 +42,13 @@ public class RouteNavigatorAgent extends Agent {
         }
         catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
-            System.out.println("Oh no, failed to find route");
+            logger.error("Oh no, failed to find route");
             takeDown();
+        }
+
+        logger.debug("{}: Found route with tag {}", getLocalName(), currentRoute.tag());
+        if (!currentRoute.tag().equals(routeTag)) {
+            logger.error("{}: Tag does not match route request!", getLocalName());
         }
 
         addBehaviour(new HandleNewWaypointRequestBehavior(this));
@@ -60,7 +69,7 @@ public class RouteNavigatorAgent extends Agent {
         try {
             var origin = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class).position();
             currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), currentRoute.tag(), waypoints);
-            System.out.println("Successfully changed route to " + currentRoute);
+//            logger.debug("Successfully changed route to " + currentRoute);
 
             var routeNotification = reply.createReply();
             routeNotification.setPerformative(ACLMessage.INFORM);

@@ -36,19 +36,15 @@ public class NewRouteReceivedBehaviour extends CyclicBehaviour {
             agent.routeSegment = 0;
             agent.segmentFragment = 0;
             agent.percent = 0.0;
+
+            // notify TrafficLightsController about route change
+            var routeNotification = new ACLMessage(ACLMessage.INFORM);
+            routeNotification.addReceiver(new AID(agent.getLocalName() + "_TL_controller", AID.ISLOCALNAME));
+            routeNotification.setContent(message.getContent());
+            agent.send(routeNotification);
         }
         else {
             block();
         }
-
-        agent.routeSegment = 0;
-        agent.segmentFragment = 0;
-        agent.percent = 0.0;
-
-        // notify TrafficLightsController about route change
-        var routeNotification = new ACLMessage(ACLMessage.INFORM);
-        routeNotification.addReceiver(new AID(agent.getLocalName() + "_TL_controller", AID.ISLOCALNAME));
-        routeNotification.setContent(message.getContent());
-        agent.send(routeNotification);
     }
 }
