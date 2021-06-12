@@ -15,7 +15,7 @@ public class Stats {
         @JsonProperty("cost")
         public Double cost;
         @JsonProperty("time")
-        public Double time;
+        public Long time;
         @JsonProperty("arrived")
         public Boolean arrived;
 }

@@ -44,6 +44,7 @@ public class GreenRedLightState extends LightState {
     public void handleCarExiting(String lightsId) {}
 
     private void scheduleLightsColorChange(long timeout) {
+        isInfinite = false;
         colorChangeBehavior = new WakerBehaviour(managerAgent, timeout) {
             @Override
             protected void onWake() {
