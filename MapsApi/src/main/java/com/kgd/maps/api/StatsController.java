@@ -5,8 +5,10 @@ import com.kgd.maps.models.Summary;
 import com.kgd.maps.repositories.StatsRepository;
 import io.opencensus.stats.Aggregation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
 
@@ -20,8 +22,8 @@ public class StatsController {
     }
 
     @PostMapping("/add")
-    public Stats add(@RequestBody Stats stats) {
-        return statsRepository.insert(stats);
+    public ResponseEntity<Stats> add(@RequestBody Stats stats) {
+        return ResponseEntity.ok(statsRepository.insert(stats));
     }
 
     @GetMapping("/all")
@@ -45,8 +47,8 @@ public class StatsController {
     }
 
     @PostMapping("/upsert")
-    public Stats upsert(@RequestBody Stats stats) {
-        var value = statsRepository.findByAID(stats.AID);
+    public ResponseEntity<Stats> upsert(@RequestBody Stats stats) {
+        var value = statsRepository.findById(stats.id);
 
         if(value != null)
         {
@@ -67,11 +69,11 @@ public class StatsController {
                 value.arrived = stats.arrived;
             }
 
-            return statsRepository.save(value);
+            return ResponseEntity.ok(statsRepository.save(value));
         }
         else
         {
-            return statsRepository.save(stats);
+            return ResponseEntity.ok(statsRepository.save(stats));
         }
     }
 
@@ -87,12 +89,12 @@ public class StatsController {
 
         var results = statsRepository.findAllByArrived(true);
 
-        var dumbResults = results.stream().filter(r -> r.dumb).toList();
+        var dumbResults = results.stream()/*.filter(r -> r.dumb != null && r.dumb)*/.toList();
         var dumbCostAvg = StatsAverage(dumbResults, costSelector);
         var dumbDistAvg = StatsAverage(dumbResults, distanceSelector);
         var dumbTimeAvg = StatsAverage(dumbResults, timeSelector);
 
-        var smartResults = results.stream().filter(r -> !r.dumb).toList();
+        var smartResults = results.stream()/*.filter(r -> r.dumb != null && !r.dumb)*/.toList();
         var smartCostAvg = StatsAverage(smartResults, costSelector);
         var smartDistAvg = StatsAverage(smartResults, distanceSelector);
         var smartTimeAvg = StatsAverage(smartResults, timeSelector);

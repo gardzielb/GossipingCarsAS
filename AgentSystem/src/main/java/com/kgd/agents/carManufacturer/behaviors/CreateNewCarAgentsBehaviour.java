@@ -15,6 +15,8 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
+import java.util.UUID;
+
 public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
     private static int carNumber = 0;
     private final CarDataService carDataService = new HttpCarDataService();
@@ -28,12 +30,17 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
         var requests = carDataService.getAll();
 
         for (var request : requests) {
+
+            UUID uuid = UUID.randomUUID();
+
             Object[] args = new Object[] {
                     Double.toString(request.origin().x()),
                     Double.toString(request.origin().y()),
                     request.destinationId(),
                     Double.toString(request.velocity()),
-                    request.routeTag()
+                    request.routeTag(),
+                    Boolean.toString(request.dumb()),
+                    uuid.toString()
             };
 
             var fuelControllerArgs = new Object[] {
@@ -56,7 +63,7 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                 fuel.start();
 
                 // cost controller has no conflicts with other agents either
-                AgentController cost = container.createNewAgent(name + "_cost_controller", WalletController.class.getName(), null);
+                AgentController cost = container.createNewAgent(name + "_cost_controller", WalletController.class.getName(), new Object[]{ uuid });
                 cost.start();
 
 //                // no conflicts as well

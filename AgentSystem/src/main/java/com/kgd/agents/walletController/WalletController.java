@@ -9,10 +9,14 @@ import jade.core.Agent;
 public class WalletController extends Agent {
     public double cost = 0.0;
     private StatsService statsService;
+    private String uuid;
 
     @Override
     protected void setup() {
         super.setup();
+        Object[] args = getArguments();
+        uuid = (String) args[0];
+
         addBehaviour(new CalculateExpensesBehaviour(this));
         statsService = new HttpStatsService();
     }
@@ -21,7 +25,7 @@ public class WalletController extends Agent {
     protected void takeDown() {
         String name = getLocalName();
         var driverName = name.substring(0, name.length() - "_cost_controller".length());
-        statsService.upsert(new Stats(null, driverName, null, cost, null, null));
+        statsService.upsert(new Stats(null, uuid, null, cost, null, null, null));
         System.out.println("Dying nicely on takedown");
         super.takeDown();
     }

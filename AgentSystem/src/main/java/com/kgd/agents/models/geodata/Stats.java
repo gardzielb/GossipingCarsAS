@@ -8,5 +8,6 @@ public record Stats(
         @JsonProperty("distance") Double distance,
         @JsonProperty("cost") Double cost,
         @JsonProperty("time") Double time,
-        @JsonProperty("arrived") Boolean arrived
+        @JsonProperty("arrived") Boolean arrived,
+        @JsonProperty("dumb") Boolean dumb
 ) {}

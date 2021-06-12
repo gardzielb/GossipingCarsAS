@@ -35,10 +35,12 @@ public class DriverAgent extends Agent {
 
     // velocity [km/h]
     protected double velocity = 0.0;
-    protected double simulationSpeed = 1.0;
     private String destinationId;
 
     public DecodedRoute route = null;
+
+    private boolean dumb;
+    private String uuid;
 
     private AgentLocationService agentLocationService;
     private StatsService statsService;
@@ -55,8 +57,9 @@ public class DriverAgent extends Agent {
         originY = Double.parseDouble((String) args[1]);
         destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
+        dumb = Boolean.parseBoolean((String) args[5]);
         velocity *= Main.getSimulationSpeed();
-
+        uuid = (String) args[6];
 
         agentLocationService = new HttpAgentLocationService();
         statsService = new HttpStatsService();
@@ -67,7 +70,6 @@ public class DriverAgent extends Agent {
         // querying the RouteNavigatorAgent for route
         var message = new ACLMessage(ACLMessage.QUERY_REF);
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
-
         send(message);
 
         calcPositionBehaviour = new CalculatePositionOnRouteBehaviour(this);
@@ -79,7 +81,7 @@ public class DriverAgent extends Agent {
     @Override
     public void takeDown() {
         agentLocationService.deleteAgentLocationByAID(getAID().toString());
-        statsService.upsert(new Stats(null, getLocalName(), fullDistance, null, null, arrived));
+        statsService.upsert(new Stats(null, uuid, fullDistance, null, null, arrived, dumb));
 
         Thread t = new Thread(() -> {
             try {
