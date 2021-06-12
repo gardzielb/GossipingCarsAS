@@ -32,17 +32,6 @@ public class UpdateTrafficLightsQueueBehavior extends CyclicBehaviour {
             try {
                 var route = objectMapper.readValue(routeMessage.getContent(), Route.class);
                 var trafficLights = lightsService.findAllByRouteTag(route.tag());
-
-                logger.debug("{}: Fetched {} route from navigator", agent.getLocalName(), route.tag());
-                logger.debug("{}: Fetched {} traffic lights from API", agent.getLocalName(), trafficLights.size());
-                if (trafficLights.size() != 2) {
-                    logger.error("{}: Wrong number of traffic lights found", agent.getLocalName());
-                }
-
-                if (!trafficLights.stream().allMatch(tl -> tl.routeTags()[0].equals(route.tag()))) {
-                    logger.error("{}: Traffic lights tags do not match route tag", agent.getLocalName());
-                }
-
                 agent.updateLightsQueue(route, trafficLights);
             }
             catch (IOException | InterruptedException e) {

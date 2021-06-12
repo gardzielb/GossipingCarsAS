@@ -58,7 +58,7 @@ public class Main {
             String managerName = tlSystem.id() + "_manager";
             var managerAgent = tlContainer.createNewAgent(
                     managerName, TrafficLightsManagerAgent.class.getName(),
-                    new Object[]{tlSystem.physicalLights()[0].id(), tlSystem.physicalLights()[1].id(), 7}
+                    new Object[]{tlSystem.physicalLights()[0], tlSystem.physicalLights()[1], 7}
             );
             managerAgent.start();
 

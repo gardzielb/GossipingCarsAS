@@ -46,11 +46,6 @@ public class RouteNavigatorAgent extends Agent {
             takeDown();
         }
 
-        logger.debug("{}: Found route with tag {}", getLocalName(), currentRoute.tag());
-        if (!currentRoute.tag().equals(routeTag)) {
-            logger.error("{}: Tag does not match route request!", getLocalName());
-        }
-
         addBehaviour(new HandleNewWaypointRequestBehavior(this));
         addBehaviour(new HandleRouteQueryBehavior(this));
     }
