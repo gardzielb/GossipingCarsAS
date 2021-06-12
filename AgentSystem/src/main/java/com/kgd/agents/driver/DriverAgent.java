@@ -1,5 +1,6 @@
 package com.kgd.agents.driver;
 
+import com.kgd.agents.Main;
 import com.kgd.agents.driver.behaviors.*;
 import com.kgd.agents.models.geodata.DecodedRoute;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
@@ -54,6 +55,8 @@ public class DriverAgent extends Agent {
         originY = Double.parseDouble((String) args[1]);
         destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
+        velocity *= Main.getSimulationSpeed();
+
 
         agentLocationService = new HttpAgentLocationService();
         statsService = new HttpStatsService();

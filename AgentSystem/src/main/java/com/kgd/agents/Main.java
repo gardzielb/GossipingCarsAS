@@ -19,12 +19,26 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Main {
+
+    private static double simulationSpeed;
+    public static final int MIN_TICKER_PERIOD = 50;
+
     public static void main(String[] args)
             throws StaleProxyException, URISyntaxException, IOException, InterruptedException {
+
+        if(args.length > 0)
+        {
+            simulationSpeed = Double.parseDouble(args[0]);
+        }
+        else
+        {
+            simulationSpeed = 1;
+        }
+
         jade.Boot.main(new String[]{"-gui", "factory:com.kgd.agents.carManufacturer.CarManufacturerAgent"});
         Runtime runtime = Runtime.instance();
 
-        createTrafficLights(runtime);
+        // createTrafficLights(runtime);
 
         PlaceService placeService = new HttpPlaceService();
         var stations = placeService.findAllByType(PlaceType.GAS_STATION);
@@ -78,6 +92,9 @@ public class Main {
                 new Object[]{lights, exitPoint, managerName}
         );
         signaler.start();
+    }
 
+    public static double getSimulationSpeed() {
+        return simulationSpeed;
     }
 }

@@ -15,4 +15,5 @@ import java.util.Optional;
 public interface StatsRepository extends MongoRepository<Stats, ObjectId> {
     Stats findByAID(String AID);
     List<Stats> findAllByArrived(boolean arrived);
+    void deleteByArrived(boolean arrived);
 }

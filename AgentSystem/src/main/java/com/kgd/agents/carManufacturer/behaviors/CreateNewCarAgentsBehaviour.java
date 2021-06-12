@@ -59,12 +59,12 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                 AgentController cost = container.createNewAgent(name + "_cost_controller", WalletController.class.getName(), null);
                 cost.start();
 
-                // no conflicts as well
-                AgentController trafficLights = container.createNewAgent(
-                        name + "_TL_controller", TrafficLightsCarControllerAgent.class.getName(),
-                        new Object[]{Double.toString(request.velocity()), 7, Boolean.toString(request.dumb())}
-                );
-                trafficLights.start();
+//                // no conflicts as well
+//                AgentController trafficLights = container.createNewAgent(
+//                        name + "_TL_controller", TrafficLightsCarControllerAgent.class.getName(),
+//                        new Object[]{Double.toString(request.velocity()), 7, Boolean.toString(request.dumb())}
+//                );
+//                trafficLights.start();
 
                 // navigator before driver (driver will try to query navigator for route on setup)
                 AgentController nav = container.createNewAgent(
