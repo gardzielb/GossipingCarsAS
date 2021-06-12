@@ -141,7 +141,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
     }
 
     public void passBetweenTrafficLights(AID tlAgent, GeoPoint exitPoint, String enterTlId) {
-        logger.debug("Passing through {} traffic lights", tlAgent.getLocalName());
+        logger.debug("Traffic lights {} let me pass", enterTlId);
 
         var exitTlBehavior = new ExitTrafficLightsBehavior(this, tlAgent, enterTlId);
         currentTLInteractionBehavior = new DriveToPointBehavior(this, exitPoint, exitTlBehavior);

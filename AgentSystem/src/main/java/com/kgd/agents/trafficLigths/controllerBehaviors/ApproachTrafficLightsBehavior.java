@@ -3,13 +3,17 @@ package com.kgd.agents.trafficLigths.controllerBehaviors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kgd.agents.models.messages.TrafficLightExitData;
+import com.kgd.agents.services.LoggerFactory;
 import com.kgd.agents.trafficLigths.TrafficLightsCarControllerAgent;
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.Logger;
 
 public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
+
+    private static final Logger logger = LoggerFactory.getLogger("TL Car Controller");
 
     private final TrafficLightsCarControllerAgent controllerAgent;
     private final AID tlSignalerId;
@@ -42,7 +46,6 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 
         if (canPassResponse != null) {
             if (canPassResponse.getPerformative() == ACLMessage.AGREE) {
-//                System.out.println("Signaler allowed me to pass");
                 changeCarMovement("start");
 
                 try {
@@ -58,7 +61,7 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
                 }
             }
             else if (!isCarStopped) {
-//                System.out.println("Stopping the car");
+                logger.debug("Stopping the car");
                 changeCarMovement("stop");
                 isCarStopped = true;
             }
