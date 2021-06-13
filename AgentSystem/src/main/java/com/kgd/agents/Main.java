@@ -38,7 +38,7 @@ public class Main {
         jade.Boot.main(new String[]{"-gui", "factory:com.kgd.agents.carManufacturer.CarManufacturerAgent"});
         Runtime runtime = Runtime.instance();
 
-        // createTrafficLights(runtime);
+        createTrafficLights(runtime);
 
         PlaceService placeService = new HttpPlaceService();
         var stations = placeService.findAllByType(PlaceType.GAS_STATION);
