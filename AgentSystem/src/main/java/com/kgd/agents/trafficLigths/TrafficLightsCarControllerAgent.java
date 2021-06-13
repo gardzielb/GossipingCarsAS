@@ -30,6 +30,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
 
     private double notificationDistKm = 0.1;
     private boolean isDumb;
+    private String uuid;
 
     private long tlWaitingMillis = 0;
 
@@ -45,6 +46,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
         int notificationTime = Integer.parseInt(args[1].toString());
 
         isDumb = Boolean.parseBoolean(args[2].toString());
+        uuid = (String) args[3];
         notificationDistKm = velocity * ((double) notificationTime / 3600);
 
         addBehaviour(new UpdateTrafficLightsQueueBehavior(this));
@@ -54,7 +56,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
     protected void takeDown() {
         String name = getLocalName();
         var driverName = name.substring(0, name.length() - "_TL_controller".length());
-        statsService.upsert(new Stats(null, driverName, null, null, tlWaitingMillis, null));
+        statsService.upsert(new Stats(uuid, null, null, tlWaitingMillis, null, null));
         System.out.println("Dying nicely on takedown");
         super.takeDown();
     }

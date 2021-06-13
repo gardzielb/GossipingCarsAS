@@ -81,7 +81,7 @@ public class DriverAgent extends Agent {
     @Override
     public void takeDown() {
         agentLocationService.deleteAgentLocationByAID(getAID().toString());
-        statsService.upsert(new Stats(null, uuid, fullDistance, null, null, arrived, dumb));
+        statsService.upsert(new Stats(uuid, fullDistance, null, null, arrived, dumb));
 
         Thread t = new Thread(() -> {
             try {

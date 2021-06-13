@@ -25,7 +25,7 @@ public class WalletController extends Agent {
     protected void takeDown() {
         String name = getLocalName();
         var driverName = name.substring(0, name.length() - "_cost_controller".length());
-        statsService.upsert(new Stats(null, uuid, null, cost, null, null, null));
+        statsService.upsert(new Stats(uuid, null, cost, null, false, null));
         System.out.println("Dying nicely on takedown");
         super.takeDown();
     }
