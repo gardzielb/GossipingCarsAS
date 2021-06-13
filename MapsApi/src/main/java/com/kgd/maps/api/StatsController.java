@@ -97,7 +97,8 @@ public class StatsController {
         var smartResults = results.stream()/*.filter(r -> r.dumb != null && !r.dumb)*/.toList();
         var smartCostAvg = StatsAverage(smartResults, costSelector);
         var smartDistAvg = StatsAverage(smartResults, distanceSelector);
-        var smartTimeAvg = StatsAverage(smartResults, timeSelector);
+        var smartTimeAvg = StatsAverage(smartResults, timeSelector); // milliseconds
+        smartTimeAvg = smartTimeAvg * 0.001; // convert to seconds
 
         return new Summary(dumbCostAvg, dumbDistAvg, dumbTimeAvg, smartCostAvg, smartDistAvg, smartTimeAvg);
     }
