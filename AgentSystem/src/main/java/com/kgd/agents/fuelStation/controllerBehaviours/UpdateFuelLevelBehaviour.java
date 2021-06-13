@@ -1,5 +1,6 @@
 package com.kgd.agents.fuelStation.controllerBehaviours;
 
+import com.kgd.agents.Main;
 import com.kgd.agents.fuelStation.FuelCarControllerAgent;
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
@@ -10,7 +11,7 @@ public class UpdateFuelLevelBehaviour extends TickerBehaviour {
     protected final FuelCarControllerAgent agent;
 
     public UpdateFuelLevelBehaviour(FuelCarControllerAgent agent) {
-        super(agent, 500);
+        super(agent, Math.max(Main.MIN_TICKER_PERIOD, (long) (500 / Main.getSimulationSpeed())));
         this.agent = agent;
     }
 

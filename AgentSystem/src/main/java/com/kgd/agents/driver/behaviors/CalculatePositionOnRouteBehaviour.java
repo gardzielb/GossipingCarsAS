@@ -1,5 +1,6 @@
 package com.kgd.agents.driver.behaviors;
 
+import com.kgd.agents.Main;
 import com.kgd.agents.driver.DriverAgent;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
 import com.kgd.agents.services.EarthDistanceCalculator;
@@ -15,7 +16,7 @@ public class CalculatePositionOnRouteBehaviour extends TickerBehaviour {
     public boolean done = false;
 
     public CalculatePositionOnRouteBehaviour(DriverAgent agent) {
-        super(agent, 200);
+        super(agent, Math.max(Main.MIN_TICKER_PERIOD, (long) (500 / Main.getSimulationSpeed())));
         agent.time = Instant.now().toEpochMilli();
         this.agent = agent;
     }

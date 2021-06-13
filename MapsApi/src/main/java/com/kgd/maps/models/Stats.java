@@ -7,15 +7,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "stats")
 public class Stats {
         @JsonProperty("id")
-        ObjectId id;
-        @JsonProperty("AID")
-        public String AID;
+        public String id;
         @JsonProperty("distance")
         public Double distance;
         @JsonProperty("cost")
         public Double cost;
         @JsonProperty("time")
-        public Double time;
+        public Long time;
+        @JsonProperty("dumb")
+        public Boolean dumb;
         @JsonProperty("arrived")
         public Boolean arrived;
 }

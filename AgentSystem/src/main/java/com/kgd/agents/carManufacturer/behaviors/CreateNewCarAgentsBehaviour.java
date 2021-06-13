@@ -6,6 +6,7 @@ import com.kgd.agents.fuelStation.FuelCarControllerAgent;
 import com.kgd.agents.navigator.RouteNavigatorAgent;
 import com.kgd.agents.services.CarDataService;
 import com.kgd.agents.services.HttpCarDataService;
+import com.kgd.agents.trafficLigths.TrafficLightsCarControllerAgent;
 import com.kgd.agents.walletController.WalletController;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -14,7 +15,7 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
-import java.util.Arrays;
+import java.util.UUID;
 
 public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
     private static int carNumber = 0;
@@ -29,14 +30,18 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
         var requests = carDataService.getAll();
 
         for (var request : requests) {
+
+            UUID uuid = UUID.randomUUID();
+
             Object[] args = new Object[] {
                     Double.toString(request.origin().x()),
                     Double.toString(request.origin().y()),
                     request.destinationId(),
                     Double.toString(request.velocity()),
-                    Double.toString(request.simulationSpeed()),
+                    request.routeTag(),
+                    Boolean.toString(request.dumb()),
+                    uuid.toString()
             };
-            Object[] routeNavArgs = Arrays.copyOf(args,3);
 
             var fuelControllerArgs = new Object[] {
                     Boolean.toString(request.dumb()),
@@ -58,11 +63,21 @@ public class CreateNewCarAgentsBehaviour extends TickerBehaviour {
                 fuel.start();
 
                 // cost controller has no conflicts with other agents either
-                AgentController cost = container.createNewAgent(name + "_cost_controller", WalletController.class.getName(), null);
+                AgentController cost = container.createNewAgent(name + "_cost_controller", WalletController.class.getName(), new Object[]{ uuid.toString() });
                 cost.start();
 
+                // no conflicts as well
+                AgentController trafficLights = container.createNewAgent(
+                        name + "_TL_controller", TrafficLightsCarControllerAgent.class.getName(),
+                        new Object[]{ Double.toString(request.velocity()), 7, Boolean.toString(request.dumb()), uuid.toString() }
+                );
+                trafficLights.start();
+
                 // navigator before driver (driver will try to query navigator for route on setup)
-                AgentController nav = container.createNewAgent(name + "_route_navigator", RouteNavigatorAgent.class.getName(), routeNavArgs);
+                AgentController nav = container.createNewAgent(
+                        name + "_route_navigator", RouteNavigatorAgent.class.getName(),
+                        new Object[]{args[0], args[1], args[2], args[4]}
+                );
                 nav.start();
 
                 AgentController driver = container.createNewAgent(name, DriverAgent.class.getName(), args);

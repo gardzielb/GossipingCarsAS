@@ -55,7 +55,7 @@ public class OsrmRequestBuilder {
     }
 
     public HttpRequest build() throws URISyntaxException {
-        String url = "https://router.project-osrm.org/route/v1/" + properties.get("profile") + '/' +
+        String url = "http://localhost:5000/route/v1/" + properties.get("profile") + '/' +
                 properties.get("origin") + ";" + properties.get("waypoints") + properties.get("destination") +
                 "?overview=" + properties.get("overview") + "&steps=" + properties.get("steps");
         System.out.println(url);

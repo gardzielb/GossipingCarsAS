@@ -25,6 +25,7 @@ public class OsrmRouteDeserializerTests {
                 new LatLng(43.12, 65.21), new LatLng(56.78, 12.34), new LatLng(43.21, 87.65)
         );
 
+        String routeTag = "Warszawa-Hel";
         String routeJson = "{" +
                 "\"code\":\"Ok\"," +
                 "\"waypoints\":[" +
@@ -49,7 +50,7 @@ public class OsrmRouteDeserializerTests {
         // here we test using this deserializer with ObjectMapper, since it is quite impossible to test it alone
         var objectMapper = new ObjectMapper();
         var module = new SimpleModule();
-        module.addDeserializer(Route.class, new OsrmRouteDeserializer(destId));
+        module.addDeserializer(Route.class, new OsrmRouteDeserializer(destId, routeTag));
         objectMapper.registerModule(module);
 
         try {
@@ -59,6 +60,7 @@ public class OsrmRouteDeserializerTests {
             Assertions.assertEquals(poly1.get(0).lat, route.origin().getY());
             Assertions.assertEquals(distance, route.distance());
             Assertions.assertEquals(2, route.segments().size());
+            Assertions.assertEquals(routeTag, route.tag());
             Assertions.assertEquals(
                     new EncodedPolyline(poly1).getEncodedPath(), route.segments().get(0).encodedPolyline()
             );

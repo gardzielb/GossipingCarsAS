@@ -19,15 +19,14 @@ import java.util.List;
 public class OsrmRouteFinder implements RouteFinder {
 
     private final OsrmRequestBuilder requestBuilder = new OsrmRequestBuilder();
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<Route> findRoute(Point origin, Place destination) {
-        return findRoute(origin, destination, new Point[]{});
+        return findRoute(origin, destination, new Point[]{}, "");
     }
 
     @Override
-    public List<Route> findRoute(Point origin, Place destination, Point[] waypoints) {
+    public List<Route> findRoute(Point origin, Place destination, Point[] waypoints, String tag) {
         try {
             var request = requestBuilder
                     .includeSteps()
@@ -37,9 +36,8 @@ public class OsrmRouteFinder implements RouteFinder {
                     .newBuilder().build()
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
-            //System.out.println(response.body());
-
-            registerRouteDeserializer(destination.id());
+            var objectMapper = new ObjectMapper();
+            registerRouteDeserializer(objectMapper, destination.id(), tag);
             return List.of(objectMapper.readValue(response.body(), Route.class));
         }
         catch (URISyntaxException | IOException | InterruptedException e) {
@@ -48,9 +46,9 @@ public class OsrmRouteFinder implements RouteFinder {
         }
     }
 
-    private void registerRouteDeserializer(ObjectId destId) {
+    private void registerRouteDeserializer(ObjectMapper objectMapper, ObjectId destId, String routeTag) {
         var module = new SimpleModule();
-        module.addDeserializer(Route.class, new OsrmRouteDeserializer(destId));
+        module.addDeserializer(Route.class, new OsrmRouteDeserializer(destId, routeTag));
         objectMapper.registerModule(module);
     }
 }

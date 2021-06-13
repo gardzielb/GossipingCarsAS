@@ -1,25 +1,21 @@
 package com.kgd.agents.driver;
 
+import com.kgd.agents.Main;
 import com.kgd.agents.driver.behaviors.*;
-import com.kgd.agents.models.geodata.Stats;
-import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.models.geodata.DecodedRoute;
 import com.kgd.agents.models.geodata.DecodedRouteSegment;
 import com.kgd.agents.models.geodata.GeoPoint;
+import com.kgd.agents.models.geodata.Stats;
+import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.services.AgentLocationService;
 import com.kgd.agents.services.HttpAgentLocationService;
 import com.kgd.agents.services.HttpStatsService;
 import com.kgd.agents.services.StatsService;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.domain.mobility.MobilityOntology;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.ControllerException;
-
-import java.time.Instant;
 
 public class DriverAgent extends Agent {
 
@@ -39,10 +35,12 @@ public class DriverAgent extends Agent {
 
     // velocity [km/h]
     protected double velocity = 0.0;
-    protected double simulationSpeed = 1.0;
     private String destinationId;
 
     public DecodedRoute route = null;
+
+    private boolean dumb;
+    private String uuid;
 
     private AgentLocationService agentLocationService;
     private StatsService statsService;
@@ -52,15 +50,16 @@ public class DriverAgent extends Agent {
         super.setup();
 
         Object[] args = getArguments();
-        if (args == null || args.length < 3)
+        if (args == null || args.length < 4)
             throw new IllegalStateException("Expected origin, destination and car velocity [km/h] as arguments");
 
         originX = Double.parseDouble((String) args[0]);
         originY = Double.parseDouble((String) args[1]);
         destinationId = (String) args[2];
         velocity = Double.parseDouble((String) args[3]);
-        simulationSpeed = Double.parseDouble((String) args[4]);
-        velocity *= simulationSpeed;
+        dumb = Boolean.parseBoolean((String) args[5]);
+        velocity *= Main.getSimulationSpeed();
+        uuid = (String) args[6];
 
         agentLocationService = new HttpAgentLocationService();
         statsService = new HttpStatsService();
@@ -71,7 +70,6 @@ public class DriverAgent extends Agent {
         // querying the RouteNavigatorAgent for route
         var message = new ACLMessage(ACLMessage.QUERY_REF);
         message.addReceiver(new AID(getLocalName() + "_route_navigator", AID.ISLOCALNAME));
-
         send(message);
 
         calcPositionBehaviour = new CalculatePositionOnRouteBehaviour(this);
@@ -83,7 +81,7 @@ public class DriverAgent extends Agent {
     @Override
     public void takeDown() {
         agentLocationService.deleteAgentLocationByAID(getAID().toString());
-        statsService.upsert(new Stats(null, getLocalName(), fullDistance, null, null, arrived));
+        statsService.upsert(new Stats(uuid, fullDistance, null, null, arrived, dumb));
 
         Thread t = new Thread(() -> {
             try {

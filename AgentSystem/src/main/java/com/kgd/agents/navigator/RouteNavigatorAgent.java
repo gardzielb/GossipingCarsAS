@@ -7,16 +7,20 @@ import com.kgd.agents.models.messages.CarLocationData;
 import com.kgd.agents.navigator.behaviors.HandleNewWaypointRequestBehavior;
 import com.kgd.agents.navigator.behaviors.HandleRouteQueryBehavior;
 import com.kgd.agents.services.HttpRouteService;
+import com.kgd.agents.services.LoggerFactory;
 import com.kgd.agents.services.RouteService;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class RouteNavigatorAgent extends Agent {
+
+    private static final Logger logger = LoggerFactory.getLogger("Route Navigator");
 
     private final RouteService routeService = new HttpRouteService();
     private Route currentRoute;
@@ -26,18 +30,19 @@ public class RouteNavigatorAgent extends Agent {
         super.setup();
 
         Object[] args = getArguments();
-        if (args == null || args.length < 3)
-            throw new IllegalStateException("Expected origin and destination as arguments");
+        if (args == null || args.length < 4)
+            throw new IllegalStateException("Expected origin, destination and route tag as arguments");
 
         var origin = new GeoPoint(Double.parseDouble((String) args[0]), Double.parseDouble((String) args[1]));
         var destinationId = (String) args[2];
+        var routeTag = (String) args[3];
 
         try {
-            currentRoute = routeService.findRoute(origin, destinationId);
+            currentRoute = routeService.findRoute(origin, destinationId, routeTag);
         }
         catch (URISyntaxException | IOException | InterruptedException e) {
             e.printStackTrace();
-            System.out.println("Oh no, failed to find route");
+            logger.error("Oh no, failed to find route");
             takeDown();
         }
 
@@ -58,15 +63,16 @@ public class RouteNavigatorAgent extends Agent {
 
         try {
             var origin = (new ObjectMapper()).readValue(reply.getContent(), CarLocationData.class).position();
-            currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), waypoints);
-            System.out.println("Successfully changed route to " + currentRoute);
+            currentRoute = routeService.findRoute(origin, currentRoute.destinationId(), currentRoute.tag(), waypoints);
+//            logger.debug("Successfully changed route to " + currentRoute);
 
             var routeNotification = reply.createReply();
             routeNotification.setPerformative(ACLMessage.INFORM);
             routeNotification.setContent((new ObjectMapper()).writeValueAsString(currentRoute));
 
             send(routeNotification);
-        } catch (IOException | InterruptedException e) {
+        }
+        catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

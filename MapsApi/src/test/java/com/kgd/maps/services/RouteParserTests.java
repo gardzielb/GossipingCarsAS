@@ -48,7 +48,9 @@ public class RouteParserTests {
 
         var routeParser = new RouteParser();
         var destId = ObjectId.get();
-        var route = routeParser.fromGoogleResponse(googleRoute, destId);
+        String routeTag = "Warszawa-Hel";
+
+        var route = routeParser.fromGoogleResponse(googleRoute, destId, routeTag);
 
         Assertions.assertEquals(googleRoute.legs.length, route.segments().size());
 

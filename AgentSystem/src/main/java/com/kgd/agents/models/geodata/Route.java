@@ -8,5 +8,6 @@ public record Route(
         @JsonProperty("origin") GeoPoint origin,
         @JsonProperty("destinationId") String destinationId,
         @JsonProperty("segments") ArrayList<RouteSegment> segments,
-        @JsonProperty("distance") double distance
+        @JsonProperty("distance") double distance,
+        @JsonProperty("tag") String tag
 ) {}

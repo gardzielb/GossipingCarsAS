@@ -26,9 +26,21 @@ public class HttpRouteService implements RouteService {
     @Override
     public Route findRoute(GeoPoint origin, String destId, GeoPoint[] waypoints)
             throws IOException, InterruptedException {
+        return findRoute(origin, destId, null, waypoints);
+    }
+
+    @Override
+    public Route findRoute(GeoPoint origin, String destId, String routeTag)
+            throws URISyntaxException, IOException, InterruptedException {
+        return findRoute(origin, destId, routeTag, new GeoPoint[]{});
+    }
+
+    @Override
+    public Route findRoute(GeoPoint origin, String destId, String routeTag, GeoPoint[] waypoints)
+            throws IOException, InterruptedException {
         String urlBase = System.getenv("MAPS_API_URL");
 
-        var routeRequest = new RouteRequest(origin, destId, waypoints);
+        var routeRequest = new RouteRequest(origin, destId, waypoints, routeTag);
         String encodedRouteRequest = URLEncoder.encode(
                 objectMapper.writeValueAsString(routeRequest), StandardCharsets.UTF_8
         );

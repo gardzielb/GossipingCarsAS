@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface StatsRepository extends MongoRepository<Stats, ObjectId> {
-    Stats findByAID(String AID);
+    Stats findById(String Id);
     List<Stats> findAllByArrived(boolean arrived);
+    void deleteByArrived(boolean arrived);
 }

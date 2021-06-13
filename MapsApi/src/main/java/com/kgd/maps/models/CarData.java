@@ -11,6 +11,7 @@ public record CarData(
         @JsonProperty("origin") Point origin,
         @JsonProperty("destinationId") ObjectId destinationId,
         @JsonProperty("velocity") double velocity,
+        @JsonProperty("routeTag") String routeTag,
         @JsonProperty("dumb") boolean dumb,
         @JsonProperty("simulationSpeed") double simulationSpeed
 ) {}
