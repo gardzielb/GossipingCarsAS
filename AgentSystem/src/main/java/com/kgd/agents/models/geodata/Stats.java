@@ -7,7 +7,6 @@ public record Stats(
         @JsonProperty("AID") String AID,
         @JsonProperty("distance") Double distance,
         @JsonProperty("cost") Double cost,
-        @JsonProperty("time") Double time,
+        @JsonProperty("time") Long time,
         @JsonProperty("arrived") Boolean arrived,
-        @JsonProperty("dumb") Boolean dumb
 ) {}

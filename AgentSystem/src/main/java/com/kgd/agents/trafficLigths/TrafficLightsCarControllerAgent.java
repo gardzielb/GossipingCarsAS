@@ -2,7 +2,9 @@ package com.kgd.agents.trafficLigths;
 
 import com.kgd.agents.models.geodata.*;
 import com.kgd.agents.services.EarthDistanceCalculator;
+import com.kgd.agents.services.HttpStatsService;
 import com.kgd.agents.services.LoggerFactory;
+import com.kgd.agents.services.StatsService;
 import com.kgd.agents.trafficLigths.controllerBehaviors.*;
 import jade.core.AID;
 import jade.core.Agent;
@@ -22,11 +24,14 @@ public class TrafficLightsCarControllerAgent extends Agent {
 
     private static final Logger logger = LoggerFactory.getLogger("TL Car Controller");
 
+    private final StatsService statsService = new HttpStatsService();
     private final Queue<TrafficLightsData> trafficLightsQueue = new ArrayDeque<>();
     private Behaviour currentTLInteractionBehavior = null;
 
     private double notificationDistKm = 0.1;
     private boolean isDumb;
+
+    private long tlWaitingMillis = 0;
 
     @Override
     protected void setup() {
@@ -43,6 +48,19 @@ public class TrafficLightsCarControllerAgent extends Agent {
         notificationDistKm = velocity * ((double) notificationTime / 3600);
 
         addBehaviour(new UpdateTrafficLightsQueueBehavior(this));
+    }
+
+    @Override
+    protected void takeDown() {
+        String name = getLocalName();
+        var driverName = name.substring(0, name.length() - "_TL_controller".length());
+        statsService.upsert(new Stats(null, driverName, null, null, tlWaitingMillis, null));
+        System.out.println("Dying nicely on takedown");
+        super.takeDown();
+    }
+
+    public void saveTLWaitingTime(long millis) {
+        tlWaitingMillis += millis;
     }
 
     public void updateLightsQueue(Route route, List<TrafficLights> trafficLights) {
