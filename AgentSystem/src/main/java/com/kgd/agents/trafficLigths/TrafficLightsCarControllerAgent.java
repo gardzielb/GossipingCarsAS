@@ -1,5 +1,6 @@
 package com.kgd.agents.trafficLigths;
 
+import com.kgd.agents.Main;
 import com.kgd.agents.models.geodata.*;
 import com.kgd.agents.services.EarthDistanceCalculator;
 import com.kgd.agents.services.HttpStatsService;
@@ -56,7 +57,7 @@ public class TrafficLightsCarControllerAgent extends Agent {
     protected void takeDown() {
         String name = getLocalName();
         var driverName = name.substring(0, name.length() - "_TL_controller".length());
-        statsService.upsert(new Stats(uuid, null, null, tlWaitingMillis, null, null));
+        statsService.upsert(new Stats(uuid, null, null, (long) (tlWaitingMillis * Main.getSimulationSpeed()), null, null));
         System.out.println("Dying nicely on takedown");
         super.takeDown();
     }

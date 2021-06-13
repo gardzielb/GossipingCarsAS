@@ -36,7 +36,7 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 	public void action() {
 
 		if (isAsking) {
-			logger.debug("Asking TL signaler if passage possible");
+		//	logger.debug("Asking TL signaler if passage possible");
 
 			var canPassQuery = new ACLMessage(ACLMessage.QUERY_IF);
 			canPassQuery.addReceiver(tlSignalerId);
@@ -44,7 +44,7 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 			isAsking = false;
 		}
 
-		logger.debug("Waiting for TL signaler response");
+	//	logger.debug("Waiting for TL signaler response");
 
 		var msgTemplate = MessageTemplate.or(
 				MessageTemplate.MatchPerformative(ACLMessage.AGREE),
@@ -54,10 +54,10 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 
 		if (canPassResponse != null) {
 			String performative = canPassResponse.getPerformative() == ACLMessage.AGREE ? "AGREE" : "REFUSE";
-			logger.debug("Received response {} from signaler", performative);
+	//		logger.debug("Received response {} from signaler", performative);
 
 			if (canPassResponse.getPerformative() == ACLMessage.AGREE) {
-				logger.debug("Starting the car");
+	//			logger.debug("Starting the car");
 				changeCarMovement("start");
 
 				long tlInteractionTime = ChronoUnit.MILLIS.between(initTime, LocalDateTime.now());
@@ -76,7 +76,7 @@ public class ApproachTrafficLightsBehavior extends SimpleBehaviour {
 				}
 			}
 			else if (!isCarStopped) {
-				logger.debug("Stopping the car");
+	//			logger.debug("Stopping the car");
 				changeCarMovement("stop");
 				isCarStopped = true;
 			}
